@@ -6,13 +6,15 @@ import java.util.UUID
 
 interface TaskRepository {
 
-    fun listFlow(): StateFlow<Collection<Task>>
+    fun observeTasks(): StateFlow<Collection<Task>>
 
-    suspend fun getById(id: UUID): Task?
+    suspend fun getAll(): Result<Collection<Task>>
 
-    suspend fun update(updatedTask: Task)
+    suspend fun getById(id: UUID): Result<Task?>
 
-    suspend fun delete(task: Task)
+    suspend fun update(updatedTask: Task): Result<Unit>
 
-    suspend fun delete(id: UUID)
+    suspend fun delete(task: Task): Result<Unit>
+
+    suspend fun delete(id: UUID): Result<Unit>
 }

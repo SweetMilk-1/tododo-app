@@ -9,7 +9,6 @@ data class Task(
     val description: String?,
     val dueDate: Date,
     val priority: Priority,
-    val listId: UUID?,
     val isCompleted: Boolean,
     val createdAt: Date,
     val updatedAt: Date,
