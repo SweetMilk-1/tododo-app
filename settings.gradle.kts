@@ -24,3 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ToDoDo"
 include(":app")
+include(":data:dto")
+include(":data:repository:api")
+include(":data:repository:room")
