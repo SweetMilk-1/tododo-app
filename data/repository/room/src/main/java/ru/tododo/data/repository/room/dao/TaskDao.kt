@@ -17,7 +17,7 @@ interface TaskDao {
     suspend fun getAll(): List<TaskEntity>
 
     @Upsert
-    suspend fun upsertTask(task: TaskEntity)
+    suspend fun upsert(task: TaskEntity)
 
     @Query("DELETE FROM task WHERE id = :id")
     suspend fun delete(id: UUID)

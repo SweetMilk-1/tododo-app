@@ -23,7 +23,7 @@ class TaskRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun update(updatedTask: Task): Result<Unit> {
+    override suspend fun upsert(updatedTask: Task): Result<Unit> {
         TODO("Not yet implemented")
     }
 

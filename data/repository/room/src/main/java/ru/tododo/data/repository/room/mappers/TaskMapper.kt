@@ -13,7 +13,6 @@ internal fun TaskEntity.toDto(): Task = Task(
     isCompleted = this.isCompleted,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
-    reminderTime = this.reminderTime
 )
 
 internal fun Task.toEntity() : TaskEntity = TaskEntity(
@@ -24,6 +23,5 @@ internal fun Task.toEntity() : TaskEntity = TaskEntity(
     priority = this.priority.ordinal,
     isCompleted = this.isCompleted,
     createdAt = this.createdAt,
-    updatedAt = this.updatedAt,
-    reminderTime = this.reminderTime
+    updatedAt = this.updatedAt
 )

@@ -12,6 +12,5 @@ data class Task(
     val isCompleted: Boolean,
     val createdAt: Date,
     val updatedAt: Date,
-    val reminderTime: Date?,
 )
 
