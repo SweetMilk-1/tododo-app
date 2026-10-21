@@ -2,10 +2,14 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.android.navigation.safeargs)
 }
 
 android {
     namespace = "ru.tododo.feature.tasks"
+    defaultConfig {
+        minSdk = 24
+    }
     compileSdk {
         version = release(37)
     }
@@ -26,10 +30,7 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     //Project
-    implementation(project(":core:future"))
     implementation(project(":core:utils"))
     implementation(project(":data:dto"))
     implementation(project(":data:repository:api"))
-
-
 }

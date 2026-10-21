@@ -4,6 +4,9 @@ plugins {
 
 android {
     namespace = "ru.tododo.data.repository.api"
+    defaultConfig {
+        minSdk = 24
+    }
     compileSdk {
         version = release(37)
     }

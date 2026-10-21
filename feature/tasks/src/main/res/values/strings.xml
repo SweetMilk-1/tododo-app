@@ -56,6 +56,8 @@
 
     <!-- ============ Ошибки / сообщения ============ -->
     <string name="error_title_required">Введите название задачи</string>
+    <string name="error_title_too_short">Слишком коротное название</string>
+
     <string name="task_saved">Задача сохранена</string>
 
 </resources>

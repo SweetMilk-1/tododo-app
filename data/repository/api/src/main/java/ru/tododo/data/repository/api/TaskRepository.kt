@@ -1,21 +1,18 @@
 package ru.tododo.data.repository.api
 
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import ru.tododo.data.dto.Task
 import java.util.UUID
 
 interface TaskRepository {
 
-    fun observeTasks(): StateFlow<Collection<Task>>
+    fun observeAll(): Flow<Collection<Task>>
 
-    suspend fun getAll(): Result<Collection<Task>>
+    fun observeById(id: UUID): Flow<Task?>
 
-    suspend fun getById(id: UUID): Result<Task?>
+    suspend fun insert(newTask: Task): Result<UUID>
 
-
-    suspend fun upsert(updatedTask: Task): Result<Unit>
-
-    suspend fun delete(task: Task): Result<Unit>
+    suspend fun update(updatedTask: Task): Result<Unit>
 
     suspend fun delete(id: UUID): Result<Unit>
 }
