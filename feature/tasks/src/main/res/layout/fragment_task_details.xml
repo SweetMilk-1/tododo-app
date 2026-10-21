@@ -38,7 +38,6 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:hint="@string/task_description_hint"
             app:layout_constraintTop_toBottomOf="@id/titleInputLayout">
 
@@ -76,7 +75,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_my_calendar"
+                android:src="@drawable/ic_edit_calendar"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
             <TextView
@@ -99,7 +98,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="4dp"
-                android:src="@android:drawable/ic_menu_my_calendar"
+                android:src="@drawable/ic_chevron_left"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
         </LinearLayout>
@@ -121,7 +120,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_my_calendar"
+                android:src="@drawable/ic_circle"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
             <TextView
@@ -144,7 +143,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="4dp"
-                android:src="@android:drawable/ic_menu_my_calendar"
+                android:src="@drawable/ic_chevron_left"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
         </LinearLayout>
@@ -203,6 +202,6 @@
         android:layout_height="54dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="8dp"
-        app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+        app:srcCompat="@drawable/ic_check" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

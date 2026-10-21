@@ -31,6 +31,7 @@ dependencies {
 
     //Project
     implementation(project(":core:utils"))
+    implementation(project(":core:resources"))
     implementation(project(":data:dto"))
     implementation(project(":data:repository:api"))
 }

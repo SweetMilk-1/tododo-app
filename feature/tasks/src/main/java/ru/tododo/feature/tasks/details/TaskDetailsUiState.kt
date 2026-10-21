@@ -13,7 +13,8 @@ internal data class TaskDetailsUiState(
     val priority: Priority = Priority.MEDIUM,
     val isCompleted: Boolean = false,
     val createdAt: Long? = null,
-    val updatedAt: Long? = null
+    val updatedAt: Long? = null,
+    val isDurty: Boolean = false
 ) {
     companion object {
 
