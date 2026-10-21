@@ -13,17 +13,15 @@ internal fun TaskEntity.toDto(): Task = Task(
     isCompleted = this.isCompleted,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
-    reminderTime = this.reminderTime
 )
 
 internal fun Task.toEntity() : TaskEntity = TaskEntity(
-    id = this.id,
+    id = this.id!!, // expected
     title = this.title,
     description = this.description,
     dueDate = this.dueDate,
     priority = this.priority.ordinal,
     isCompleted = this.isCompleted,
-    createdAt = this.createdAt,
-    updatedAt = this.updatedAt,
-    reminderTime = this.reminderTime
+    createdAt = this.createdAt!!, // expected
+    updatedAt = this.updatedAt!! // expected
 )

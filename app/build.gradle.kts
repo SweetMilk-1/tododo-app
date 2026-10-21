@@ -29,14 +29,18 @@ android {
 
 dependencies {
 
-    implementation(project(":data:repository:room"))
+    implementation(project(":feature:tasks"))
     implementation(project(":data:repository:api"))
+    implementation(project(":data:repository:room"))
 
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    implementation(libs.fragment.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
 
     // Hilt
     implementation(libs.hilt.android)

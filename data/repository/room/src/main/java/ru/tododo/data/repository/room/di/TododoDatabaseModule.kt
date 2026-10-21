@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.tododo.core.room.TododoDatabase
+import ru.tododo.data.repository.room.TododoDatabase
 import ru.tododo.data.repository.room.dao.TaskDao
 import javax.inject.Singleton
 

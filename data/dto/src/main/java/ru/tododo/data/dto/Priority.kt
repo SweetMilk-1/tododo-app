@@ -11,7 +11,7 @@ enum class Priority {
             return try {
                 entries[priorInt]
             } catch (_: Throwable) {
-                throw IllegalArgumentException("Unknown priority $priorInt")
+                throw IllegalArgumentException("Unknown priority: $priorInt")
             }
         }
     }

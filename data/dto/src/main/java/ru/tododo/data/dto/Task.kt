@@ -1,17 +1,15 @@
 package ru.tododo.data.dto
 
-import java.util.Date
 import java.util.UUID
 
 data class Task(
-    val id: UUID,
+    val id: UUID? = null,
     val title: String,
     val description: String?,
-    val dueDate: Date,
+    val dueDate: Long?,
     val priority: Priority,
-    val isCompleted: Boolean,
-    val createdAt: Date,
-    val updatedAt: Date,
-    val reminderTime: Date?,
+    val isCompleted: Boolean = false,
+    val createdAt: Long? = null,
+    val updatedAt: Long? = null,
 )
 

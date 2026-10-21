@@ -6,6 +6,9 @@ plugins {
 
 android {
     namespace = "ru.tododo.data.repository.room"
+    defaultConfig {
+        minSdk = 24
+    }
     compileSdk {
         version = release(37)
     }
