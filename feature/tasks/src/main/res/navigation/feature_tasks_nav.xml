@@ -8,6 +8,9 @@
         android:id="@+id/taskListFragment"
         android:name="ru.tododo.feature.tasks.list.TaskListFragment"
         android:label="TaskDetailsFragment" >
+        <action
+            android:id="@+id/action_taskListFragment_to_taskDetailsFragment"
+            app:destination="@id/taskDetailsFragment" />
     </fragment>
 
     <fragment

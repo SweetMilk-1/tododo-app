@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -23,6 +24,7 @@ import ru.tododo.feature.tasks.details.dialogs.PriorityPickerDialogFragment
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 @AndroidEntryPoint
 class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
@@ -36,7 +38,10 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val taskId =  args.taskId
+        if (savedInstanceState == null) {
+            val taskId = args.taskId?.let(UUID::fromString)
+            viewModel.init(taskId)
+        }
     }
 
     override fun onCreateView(

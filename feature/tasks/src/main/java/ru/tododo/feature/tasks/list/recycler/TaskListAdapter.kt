@@ -7,13 +7,18 @@ import android.widget.TextView
 import androidx.recyclerview.widget.ListAdapter
 import ru.tododo.data.dto.Task
 
-internal class TaskListAdapter: ListAdapter<Task, TaskListItemViewHolder>(TaskDiffUtilCallback) {
+internal typealias OnTaskClickCallback = (Task) -> Unit
+
+internal class TaskListAdapter(
+    private val callback: OnTaskClickCallback
+): ListAdapter<Task, TaskListItemViewHolder>(TaskDiffUtilCallback) {
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): TaskListItemViewHolder {
         val textView: TextView = createItemView(parent.context)
-        return TaskListItemViewHolder(textView)
+        return TaskListItemViewHolder(textView, callback)
     }
 
     private fun createItemView(context: Context): TextView = TextView(context).apply {

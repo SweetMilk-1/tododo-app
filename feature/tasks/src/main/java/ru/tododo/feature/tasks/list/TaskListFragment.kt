@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import ru.tododo.data.dto.Task
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskListBinding
 import ru.tododo.feature.tasks.list.recycler.TaskListAdapter
@@ -23,14 +25,14 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private val viewModel: TaskListViewModel by viewModels()
 
     private val adapter by lazy {
-        TaskListAdapter()
+        TaskListAdapter { viewModel.clickTask(it) }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentTaskListBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -39,8 +41,31 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
-        setupListeners()
+        setupViewListeners()
         observeState()
+        listenEvent()
+    }
+
+    private fun listenEvent() {
+        lifecycleScope.launch {
+            viewModel.events.collect {
+                handleEvent(it)
+            }
+        }
+    }
+
+    private fun handleEvent(event: TaskListEvent) {
+        when (event) {
+            is TaskListEvent.OpenTask -> navigateToTaskDetails(event.task)
+        }
+    }
+
+    private fun navigateToTaskDetails(task: Task) {
+        val taskId = task.id
+        val action = TaskListFragmentDirections.actionTaskListFragmentToTaskDetailsFragment(
+            taskId = taskId.toString()
+        )
+        findNavController().navigate(action)
     }
 
     private fun setupRecyclerView() {
@@ -58,7 +83,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         }
     }
 
-    private fun setupListeners() {
+    private fun setupViewListeners() {
         // TODO("Not yet implemented")
     }
 
