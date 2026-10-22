@@ -2,7 +2,13 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/tasks_nav"
-    app:startDestination="@id/taskDetailsFragment">
+    app:startDestination="@id/taskListFragment">
+
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="ru.tododo.feature.tasks.list.TaskListFragment"
+        android:label="TaskDetailsFragment" >
+    </fragment>
 
     <fragment
         android:id="@+id/taskDetailsFragment"

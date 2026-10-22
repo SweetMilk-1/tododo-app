@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.fragment.ktx)
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
+    implementation(libs.androidx.recyclerview)
 
     //Hilt
     implementation(libs.hilt.android)

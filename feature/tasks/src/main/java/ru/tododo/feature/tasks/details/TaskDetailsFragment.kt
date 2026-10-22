@@ -7,28 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.tododo.core.utils.widget.setTextChangedListener
 import ru.tododo.core.utils.widget.setTextKeepCursor
-import ru.tododo.data.dto.Priority
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskDetailsBinding
 import ru.tododo.feature.tasks.details.dialogs.PriorityPickerDialogFragment
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.UUID
-import android.R as androidR
 
 @AndroidEntryPoint
 class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
