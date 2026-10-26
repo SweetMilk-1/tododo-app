@@ -1,12 +1,19 @@
 package ru.tododo.feature.tasks.list
 
-import ru.tododo.data.dto.Task
+import java.util.UUID
 
 data class TaskListUiState(
-    val taskList: List<Task> = emptyList()
+    val taskList: List<TaskItem> = emptyList()
 ) {
 
     companion object {
         val DEFAULT = TaskListUiState()
     }
 }
+
+data class TaskItem(
+    val id: UUID,
+    val title: String,
+    val dueDate: Long?,
+    val isCompleted: Boolean
+)

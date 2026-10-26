@@ -60,4 +60,7 @@
 
     <string name="task_saved">Задача сохранена</string>
 
+
+    <string name="due_date">До %1$s</string>
+    <string name="no_due_date">Без срока</string>
 </resources>
