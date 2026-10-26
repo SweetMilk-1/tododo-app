@@ -58,6 +58,13 @@ internal class TaskDetailsViewModel @Inject constructor(
         }
     }
 
+    fun deleteTask() {
+        viewModelScope.launch {
+            task?.id?.let { taskRepository.delete(it) }
+            _events.emit(TaskDetailsEvents.BackToList)
+        }
+    }
+
     private fun updateTask(task: Task) = viewModelScope.launch {
         val result = taskRepository.update(task)
         when {
@@ -138,6 +145,12 @@ internal class TaskDetailsViewModel @Inject constructor(
     private fun mutate(block: TaskDetailsUiState.() -> TaskDetailsUiState) {
         val current = _state.value
         _state.value = current.block()
+    }
+
+    fun openDeleteDialog() {
+        viewModelScope.launch {
+            _events.emit(TaskDetailsEvents.OpenDeleteDialog)
+        }
     }
 
     companion object {

@@ -3,9 +3,13 @@ package ru.tododo.feature.tasks.details
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,6 +27,7 @@ import ru.tododo.core.utils.widget.setTextChangedListener
 import ru.tododo.core.utils.widget.setTextKeepCursor
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskDetailsBinding
+import ru.tododo.feature.tasks.details.dialogs.DeleteAlertDialogFragment
 import ru.tododo.feature.tasks.details.dialogs.PriorityPickerDialogFragment
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -38,6 +43,24 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
     private val viewModel: TaskDetailsViewModel by viewModels()
 
     private val args: TaskDetailsFragmentArgs by navArgs()
+
+    val menuProvider: MenuProvider by lazy {
+        object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.details_action_bar_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.deleteTaskAction -> {
+                        viewModel.openDeleteDialog()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +100,14 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
     private fun handleEvent(event: TaskDetailsEvents) {
         when (event) {
             TaskDetailsEvents.BackToList -> navigateBack()
+            TaskDetailsEvents.OpenDeleteDialog -> openDeleteDialog()
         }
+    }
+
+    private fun openDeleteDialog() {
+        DeleteAlertDialogFragment().apply {
+            setOnDeleteApprovedCallback { viewModel.deleteTask() }
+        }.show(childFragmentManager, DELETE_ALERT_DIALOG_TAG)
     }
 
     fun navigateBack() {
@@ -86,6 +116,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
         _binding = null
     }
 
@@ -107,6 +138,13 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
                 viewModel.state.collect { state ->
                     (activity as AppCompatActivity).supportActionBar?.title =
                         requireContext().getString(state.fragmentTitleRes)
+
+                    if (state.isEditing) {
+                        requireActivity().addMenuProvider(menuProvider)
+                    } else {
+                        requireActivity().removeMenuProvider(menuProvider)
+                    }
+
                     binding.titleEditText.setTextKeepCursor(state.title)
                     binding.titleInputLayout.error =
                         state.titleErrorRes?.let { requireContext().getString(it) }
@@ -205,6 +243,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
         private const val DATE_PICKER_TAG = "DATE_PICKER_TAG"
         private const val TIME_PICKER_TAG = "TIME_PICKER_TAG"
         private const val PRIORITY_PICKER_TAG = "PRIORITY_PICKER_TAG"
+        private const val DELETE_ALERT_DIALOG_TAG = "DELETE_ALERT_DIALOG_TAG"
 
         @SuppressLint("ConstantLocale")
         private val DATE_TIME_FORMATTER = SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault())
