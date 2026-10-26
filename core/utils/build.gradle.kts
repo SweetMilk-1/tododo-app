@@ -11,3 +11,7 @@ android {
         version = release(37)
     }
 }
+dependencies {
+    implementation(libs.androidx.annotation)
+    implementation(libs.material)
+}

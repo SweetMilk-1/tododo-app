@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ToDoDo</string>
+    <string name="tasks_nav_title">Задачи</string>
+    <string name="settings_nav_title">Настройки</string>
 </resources>
