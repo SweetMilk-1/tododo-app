@@ -1,12 +1,15 @@
 package ru.tododo.feature.tasks.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +28,9 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private val viewModel: TaskListViewModel by viewModels()
 
     private val adapter by lazy {
-        TaskListAdapter { viewModel.clickTask(it) }
+        TaskListAdapter {
+            viewModel.clickTask(it)
+        }
     }
 
     override fun onCreateView(
@@ -46,20 +51,6 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         listenEvent()
     }
 
-    private fun listenEvent() {
-        lifecycleScope.launch {
-            viewModel.events.collect {
-                handleEvent(it)
-            }
-        }
-    }
-
-    private fun handleEvent(event: TaskListEvent) {
-        when (event) {
-            is TaskListEvent.OpenTask -> navigateToTaskDetails(event.task)
-        }
-    }
-
     private fun navigateToTaskDetails(task: Task) {
         val taskId = task.id
         val action = TaskListFragmentDirections.actionTaskListFragmentToTaskDetailsFragment(
@@ -77,9 +68,27 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
 
     private fun observeState() {
         lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                adapter.submitList(state.taskList)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    adapter.submitList(state.taskList)
+                }
             }
+        }
+    }
+
+    private fun listenEvent() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.events.collect {
+                    handleEvent(it)
+                }
+            }
+        }
+    }
+
+    private fun handleEvent(event: TaskListEvent) {
+        when (event) {
+            is TaskListEvent.OpenTask -> navigateToTaskDetails(event.task)
         }
     }
 

@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -60,6 +62,10 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
         observeState()
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -79,32 +85,35 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     private fun observeState() {
         lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                binding.titleEditText.setTextKeepCursor(state.title)
-                binding.titleInputLayout.error = state.titleError?.let { requireContext().getString(it) }
-                binding.descriptionEditText.setTextKeepCursor(state.description)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    binding.titleEditText.setTextKeepCursor(state.title)
+                    binding.titleInputLayout.error =
+                        state.titleError?.let { requireContext().getString(it) }
+                    binding.descriptionEditText.setTextKeepCursor(state.description)
 
-                binding.dueValueText.text = state.dueDate
-                    ?.let { DATE_TIME_FORMATTER.format(it) }
-                    ?: getString(R.string.task_due_not_set)
+                    binding.dueValueText.text = state.dueDate
+                        ?.let { DATE_TIME_FORMATTER.format(it) }
+                        ?: getString(R.string.task_due_not_set)
 
-                binding.priorityValueText.text = state.priority.getString(requireContext())
+                    binding.priorityValueText.text = state.priority.getString(requireContext())
 
-                // Switch «Выполнено» — только при редактировании
-                binding.completedSwitch.isVisible = state.isEditing
-                if (binding.completedSwitch.isChecked != state.isCompleted) {
-                    binding.completedSwitch.isChecked = state.isCompleted
-                }
+                    // Switch «Выполнено» — только при редактировании
+                    binding.completedSwitch.isVisible = state.isEditing
+                    if (binding.completedSwitch.isChecked != state.isCompleted) {
+                        binding.completedSwitch.isChecked = state.isCompleted
+                    }
 
-                // Метаданные
-                binding.createdAtText.isVisible = state.createdAt != null
-                binding.createdAtText.text = state.createdAt?.let {
-                    getString(R.string.task_created_at, DATE_TIME_FORMATTER.format(it))
-                }
+                    // Метаданные
+                    binding.createdAtText.isVisible = state.createdAt != null
+                    binding.createdAtText.text = state.createdAt?.let {
+                        getString(R.string.task_created_at, DATE_TIME_FORMATTER.format(it))
+                    }
 
-                binding.updatedAtText.isVisible = state.updatedAt != null
-                binding.updatedAtText.text = state.updatedAt?.let {
-                    getString(R.string.task_updated_at, DATE_TIME_FORMATTER.format(it))
+                    binding.updatedAtText.isVisible = state.updatedAt != null
+                    binding.updatedAtText.text = state.updatedAt?.let {
+                        getString(R.string.task_updated_at, DATE_TIME_FORMATTER.format(it))
+                    }
                 }
             }
         }

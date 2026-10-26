@@ -3,6 +3,7 @@ package ru.tododo.feature.tasks.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -12,6 +13,7 @@ import ru.tododo.data.dto.Task
 import ru.tododo.data.repository.api.TaskRepository
 import javax.inject.Inject
 
+
 @HiltViewModel
 internal class TaskListViewModel @Inject constructor(
     private val taskRepository: TaskRepository
@@ -19,7 +21,11 @@ internal class TaskListViewModel @Inject constructor(
     private val _state = MutableStateFlow(TaskListUiState.DEFAULT)
     val state: StateFlow<TaskListUiState> get() = _state
 
-    private val _events = MutableSharedFlow<TaskListEvent>()
+    private val _events = MutableSharedFlow<TaskListEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val events: SharedFlow<TaskListEvent> get() = _events
 
     init {
