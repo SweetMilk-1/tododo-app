@@ -7,20 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.tododo.core.utils.widget.setTextChangedListener
 import ru.tododo.core.utils.widget.setTextKeepCursor
-import ru.tododo.data.dto.Priority
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskDetailsBinding
 import ru.tododo.feature.tasks.details.dialogs.PriorityPickerDialogFragment
@@ -28,7 +27,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
-import android.R as androidR
 
 @AndroidEntryPoint
 class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
@@ -42,7 +40,10 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val taskId =  args.taskId
+        if (savedInstanceState == null) {
+            val taskId = args.taskId?.let(UUID::fromString)
+            viewModel.init(taskId)
+        }
     }
 
     override fun onCreateView(
@@ -59,6 +60,27 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
         setupListeners()
         observeState()
+        listenEvent()
+    }
+
+    private fun listenEvent() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.events.collect {
+                    handleEvent(it)
+                }
+            }
+        }
+    }
+
+    private fun handleEvent(event: TaskDetailsEvents) {
+        when (event) {
+            TaskDetailsEvents.BackToList -> navigateBack()
+        }
+    }
+
+    fun navigateBack() {
+        findNavController().navigateUp()
     }
 
     override fun onDestroyView() {
@@ -67,8 +89,8 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
     }
 
     private fun setupListeners() {
-        binding.titleEditText.setTextChangedListener {viewModel.setTitle(it.toString())}
-        binding.descriptionEditText.setTextChangedListener {viewModel.setDescription(it.toString())}
+        binding.titleEditText.setTextChangedListener { viewModel.setTitle(it.toString()) }
+        binding.descriptionEditText.setTextChangedListener { viewModel.setDescription(it.toString()) }
         binding.dueDateRow.setOnClickListener { showDateTimePicker() }
         binding.priorityRow.setOnClickListener { showPriorityPicker() }
         binding.saveButton.setOnClickListener { viewModel.save() }
@@ -80,32 +102,35 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     private fun observeState() {
         lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                binding.titleEditText.setTextKeepCursor(state.title)
-                binding.titleInputLayout.error = state.titleError?.let { requireContext().getString(it) }
-                binding.descriptionEditText.setTextKeepCursor(state.description)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    binding.titleEditText.setTextKeepCursor(state.title)
+                    binding.titleInputLayout.error =
+                        state.titleError?.let { requireContext().getString(it) }
+                    binding.descriptionEditText.setTextKeepCursor(state.description)
 
-                binding.dueValueText.text = state.dueDate
-                    ?.let { DATE_TIME_FORMATTER.format(it) }
-                    ?: getString(R.string.task_due_not_set)
+                    binding.dueValueText.text = state.dueDate
+                        ?.let { DATE_TIME_FORMATTER.format(it) }
+                        ?: getString(R.string.task_due_not_set)
 
-                binding.priorityValueText.text = state.priority.getString(requireContext())
+                    binding.priorityValueText.text = state.priority.getString(requireContext())
 
-                // Switch «Выполнено» — только при редактировании
-                binding.completedSwitch.isVisible = state.isEditing
-                if (binding.completedSwitch.isChecked != state.isCompleted) {
-                    binding.completedSwitch.isChecked = state.isCompleted
-                }
+                    // Switch «Выполнено» — только при редактировании
+                    binding.completedSwitch.isVisible = state.isEditing
+                    if (binding.completedSwitch.isChecked != state.isCompleted) {
+                        binding.completedSwitch.isChecked = state.isCompleted
+                    }
 
-                // Метаданные
-                binding.createdAtText.isVisible = state.createdAt != null
-                binding.createdAtText.text = state.createdAt?.let {
-                    getString(R.string.task_created_at, DATE_TIME_FORMATTER.format(it))
-                }
+                    // Метаданные
+                    binding.createdAtText.isVisible = state.createdAt != null
+                    binding.createdAtText.text = state.createdAt?.let {
+                        getString(R.string.task_created_at, DATE_TIME_FORMATTER.format(it))
+                    }
 
-                binding.updatedAtText.isVisible = state.updatedAt != null
-                binding.updatedAtText.text = state.updatedAt?.let {
-                    getString(R.string.task_updated_at, DATE_TIME_FORMATTER.format(it))
+                    binding.updatedAtText.isVisible = state.updatedAt != null
+                    binding.updatedAtText.text = state.updatedAt?.let {
+                        getString(R.string.task_updated_at, DATE_TIME_FORMATTER.format(it))
+                    }
                 }
             }
         }
@@ -177,6 +202,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
         private const val DATE_PICKER_TAG = "DATE_PICKER_TAG"
         private const val TIME_PICKER_TAG = "TIME_PICKER_TAG"
         private const val PRIORITY_PICKER_TAG = "PRIORITY_PICKER_TAG"
+
         @SuppressLint("ConstantLocale")
         private val DATE_TIME_FORMATTER = SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault())
     }

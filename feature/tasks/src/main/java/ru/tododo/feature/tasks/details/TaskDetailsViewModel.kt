@@ -3,8 +3,12 @@ package ru.tododo.feature.tasks.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.tododo.data.dto.Priority
 import ru.tododo.data.dto.Task
@@ -14,12 +18,15 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class TaskDetailsViewModel @Inject constructor(
+internal class TaskDetailsViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TaskDetailsUiState.DEFAULT)
-    internal val state: StateFlow<TaskDetailsUiState> = _state
+    val state: StateFlow<TaskDetailsUiState> = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<TaskDetailsEvents>()
+    val events: SharedFlow<TaskDetailsEvents> = _events.asSharedFlow()
 
     private var task: Task? = null
         set(value) {
@@ -37,8 +44,7 @@ class TaskDetailsViewModel @Inject constructor(
         }
     }
 
-    fun setTitle(title: String) = mutate {
-        copy(title = title, titleError = null) }
+    fun setTitle(title: String) = mutate { copy(title = title, titleError = null) }
     fun setDescription(description: String) = mutate { copy(description = description) }
     fun setDueDate(date: Long) = mutate { copy(dueDate = date) }
     fun setPriority(p: Priority) = mutate { copy(priority = p) }
@@ -57,7 +63,7 @@ class TaskDetailsViewModel @Inject constructor(
     private fun updateTask(task: Task) = viewModelScope.launch {
         val result = taskRepository.update(task)
         when {
-            result.isSuccess -> Unit // No-op
+            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList)
             result.isFailure -> handleUpdateError(result.exceptionOrNull())
         }
     }
@@ -70,7 +76,7 @@ class TaskDetailsViewModel @Inject constructor(
         val task = getTaskFromUiState()
         val result = taskRepository.insert(task)
         when {
-            result.isSuccess -> result.getOrNull()?.let { startObserve(it) }
+            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList)
             result.isFailure -> handleInsertError(result.exceptionOrNull())
         }
     }

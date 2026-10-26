@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tasks_nav"
-    app:startDestination="@id/taskDetailsFragment">
+    app:startDestination="@id/taskListFragment">
+
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="ru.tododo.feature.tasks.list.TaskListFragment"
+        android:label="TaskDetailsFragment"
+        tools:layout="@layout/fragment_task_list">
+        <action
+            android:id="@+id/action_taskListFragment_to_taskDetailsFragment"
+            app:destination="@id/taskDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/taskDetailsFragment"
         android:name="ru.tododo.feature.tasks.details.TaskDetailsFragment"
-        android:label="TaskDetailsFragment" >
+        android:label="TaskDetailsFragment"
+        tools:layout="@layout/fragment_task_details">
 
         <argument
             android:name="taskId"
+            android:defaultValue="@null"
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null">
-        </argument>
+            app:nullable="true" />
     </fragment>
 </navigation>

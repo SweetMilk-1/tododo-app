@@ -98,7 +98,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="4dp"
-                android:src="@drawable/ic_chevron_left"
+                android:src="@drawable/ic_chevron_right"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
         </LinearLayout>
@@ -143,7 +143,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="4dp"
-                android:src="@drawable/ic_chevron_left"
+                android:src="@drawable/ic_chevron_right"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
         </LinearLayout>
