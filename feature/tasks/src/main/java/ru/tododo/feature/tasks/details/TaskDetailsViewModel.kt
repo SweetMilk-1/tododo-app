@@ -31,9 +31,7 @@ internal class TaskDetailsViewModel @Inject constructor(
     private var task: Task? = null
         set(value) {
             field = value
-            value?.let {
-                updateUiStateWithTask(it)
-            }
+            value?.let { updateUiStateWithTask(it) }
         }
 
     fun init(
@@ -44,7 +42,7 @@ internal class TaskDetailsViewModel @Inject constructor(
         }
     }
 
-    fun setTitle(title: String) = mutate { copy(title = title, titleError = null) }
+    fun setTitle(title: String) = mutate { copy(title = title, titleErrorRes = null) }
     fun setDescription(description: String) = mutate { copy(description = description) }
     fun setDueDate(date: Long) = mutate { copy(dueDate = date) }
     fun setPriority(p: Priority) = mutate { copy(priority = p) }
@@ -100,9 +98,10 @@ internal class TaskDetailsViewModel @Inject constructor(
     private fun updateUiStateWithTask(task: Task) {
         mutate {
             copy(
+                fragmentTitleRes = R.string.edit_task_title,
                 isEditing = true,
                 title = task.title,
-                titleError = null,
+                titleErrorRes = null,
                 description = task.description,
                 dueDate = task.dueDate,
                 priority = task.priority,
@@ -126,11 +125,11 @@ internal class TaskDetailsViewModel @Inject constructor(
     private fun ensureFormValid(): Boolean {
         val uiState = state.value
         if (uiState.title.isBlank()) {
-            mutate { copy(titleError = R.string.error_title_required) }
+            mutate { copy(titleErrorRes = R.string.error_title_required) }
             return false
         }
         if (uiState.title.length < MIN_TITLE_LENGTH) {
-            mutate { copy(titleError = R.string.error_title_too_short) }
+            mutate { copy(titleErrorRes = R.string.error_title_too_short) }
             return false
         }
         return true

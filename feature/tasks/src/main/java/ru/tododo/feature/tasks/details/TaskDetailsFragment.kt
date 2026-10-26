@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -101,17 +102,19 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
     }
 
     private fun observeState() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
+                    (activity as AppCompatActivity).supportActionBar?.title =
+                        requireContext().getString(state.fragmentTitleRes)
                     binding.titleEditText.setTextKeepCursor(state.title)
                     binding.titleInputLayout.error =
-                        state.titleError?.let { requireContext().getString(it) }
+                        state.titleErrorRes?.let { requireContext().getString(it) }
                     binding.descriptionEditText.setTextKeepCursor(state.description)
 
                     binding.dueValueText.text = state.dueDate
                         ?.let { DATE_TIME_FORMATTER.format(it) }
-                        ?: getString(R.string.task_due_not_set)
+                        ?: getString(R.string.no_due_date)
 
                     binding.priorityValueText.text = state.priority.getString(requireContext())
 
