@@ -10,15 +10,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.tododo.core.utils.errorLog
-import ru.tododo.data.dto.Task
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskListBinding
 import ru.tododo.feature.tasks.list.recycler.TaskItemInteractListener
 import ru.tododo.feature.tasks.list.recycler.TaskListAdapter
+import ru.tododo.feature.tasks.list.recycler.TaskListItemViewHolder
 import java.util.UUID
 
 @AndroidEntryPoint
@@ -33,10 +35,30 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         TaskListAdapter(layoutInflater, object : TaskItemInteractListener {
             override fun openTaskDetails(taskId: UUID) = viewModel.openTaskDetails(taskId)
 
-            override fun deleteTask(taskId: UUID) = TODO("Not yet implemented")
+            override fun deleteTask(taskId: UUID) = viewModel.deleteTask(taskId)
 
             override fun setTaskCompleted(taskId: UUID, isComplete: Boolean) =
                 viewModel.setTaskCompleted(taskId, isComplete)
+        })
+    }
+
+    private val recyclerViewItemTouchHelper by lazy {
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(
+                viewHolder: RecyclerView.ViewHolder,
+                direction: Int
+            ) {
+                (viewHolder as TaskListItemViewHolder).swipe()
+            }
         })
     }
 
@@ -70,6 +92,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         binding.taskList.layoutManager = LinearLayoutManager(requireContext()).apply {
             orientation = LinearLayoutManager.VERTICAL
         }
+        recyclerViewItemTouchHelper.attachToRecyclerView(binding.taskList)
     }
 
     private fun observeState() {

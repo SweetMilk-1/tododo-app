@@ -13,7 +13,7 @@ import java.util.Locale
 
 internal class TaskListItemViewHolder(
     private val viewBinding: ViewItemTaskBinding,
-    taskItemInteractListener: TaskItemInteractListener
+    private val taskItemInteractListener: TaskItemInteractListener
 ) : RecyclerView.ViewHolder(viewBinding.root) {
 
     private var taskItem: TaskItem? = null
@@ -52,6 +52,10 @@ internal class TaskListItemViewHolder(
             viewBinding.dueDate.paintFlags =
                 viewBinding.dueDate.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
         }
+    }
+
+    fun swipe() {
+        taskItem?.let { taskItemInteractListener.deleteTask(it.id) }
     }
 
     companion object {

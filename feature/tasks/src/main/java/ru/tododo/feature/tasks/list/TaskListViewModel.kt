@@ -3,7 +3,6 @@ package ru.tododo.feature.tasks.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -52,6 +51,12 @@ internal class TaskListViewModel @Inject constructor(
                 return@launch
             }
             taskRepository.update(task)
+        }
+    }
+
+    fun deleteTask(taskId: UUID) {
+        viewModelScope.launch {
+            taskRepository.delete(taskId)
         }
     }
 
