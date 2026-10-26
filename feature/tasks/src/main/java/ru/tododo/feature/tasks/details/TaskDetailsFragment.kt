@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -59,6 +60,27 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
         setupListeners()
         observeState()
+        listenEvent()
+    }
+
+    private fun listenEvent() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.events.collect {
+                    handleEvent(it)
+                }
+            }
+        }
+    }
+
+    private fun handleEvent(event: TaskDetailsEvents) {
+        when (event) {
+            TaskDetailsEvents.BackToList -> navigateBack()
+        }
+    }
+
+    fun navigateBack() {
+        findNavController().navigateUp()
     }
 
     override fun onDestroyView() {
@@ -67,8 +89,8 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
     }
 
     private fun setupListeners() {
-        binding.titleEditText.setTextChangedListener {viewModel.setTitle(it.toString())}
-        binding.descriptionEditText.setTextChangedListener {viewModel.setDescription(it.toString())}
+        binding.titleEditText.setTextChangedListener { viewModel.setTitle(it.toString()) }
+        binding.descriptionEditText.setTextChangedListener { viewModel.setDescription(it.toString()) }
         binding.dueDateRow.setOnClickListener { showDateTimePicker() }
         binding.priorityRow.setOnClickListener { showPriorityPicker() }
         binding.saveButton.setOnClickListener { viewModel.save() }
@@ -180,6 +202,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
         private const val DATE_PICKER_TAG = "DATE_PICKER_TAG"
         private const val TIME_PICKER_TAG = "TIME_PICKER_TAG"
         private const val PRIORITY_PICKER_TAG = "PRIORITY_PICKER_TAG"
+
         @SuppressLint("ConstantLocale")
         private val DATE_TIME_FORMATTER = SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault())
     }
