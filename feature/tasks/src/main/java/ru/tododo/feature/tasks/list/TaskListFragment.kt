@@ -80,9 +80,9 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         listenEvent()
     }
 
-    private fun navigateToTaskDetails(taskId: UUID) {
+    private fun navigateToTaskDetails(taskId: UUID?) {
         val action = TaskListFragmentDirections.actionTaskListFragmentToTaskDetailsFragment(
-            taskId = taskId.toString()
+            taskId = taskId?.toString()
         )
         findNavController().navigate(action)
     }
@@ -118,12 +118,15 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private fun handleEvent(event: TaskListEvent) {
         when (event) {
             is TaskListEvent.OpenTaskDetails -> navigateToTaskDetails(event.taskId)
+            is TaskListEvent.OpenNewTaskForm -> navigateToTaskDetails(null)
             is TaskListEvent.Error -> errorLog(event.msg)
         }
     }
 
     private fun setupViewListeners() {
-        // TODO("Not yet implemented")
+        binding.addNewTaskButton.setOnClickListener {
+            viewModel.addNewTask()
+        }
     }
 
     override fun onDestroyView() {

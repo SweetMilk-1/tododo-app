@@ -60,6 +60,12 @@ internal class TaskListViewModel @Inject constructor(
         }
     }
 
+    fun addNewTask() {
+        viewModelScope.launch {
+            _events.emit(TaskListEvent.OpenNewTaskForm)
+        }
+    }
+
     private fun Task.mapToTaskItem (): TaskItem = TaskItem(
         id = this.id!!, // expected
         title = title,
