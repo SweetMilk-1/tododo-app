@@ -52,7 +52,7 @@ internal class TaskDetailsViewModel @Inject constructor(
         if (!ensureFormValid()) return
         val freshTask = getTaskFromUiState()
         if (task == null) {
-            insertNewTaskAndStartObserve()
+            insertNewTask()
         } else {
             updateTask(freshTask)
         }
@@ -61,14 +61,14 @@ internal class TaskDetailsViewModel @Inject constructor(
     fun deleteTask() {
         viewModelScope.launch {
             task?.id?.let { taskRepository.delete(it) }
-            _events.emit(TaskDetailsEvents.BackToList)
+            _events.emit(TaskDetailsEvents.BackToList(R.string.task_deleted))
         }
     }
 
     private fun updateTask(task: Task) = viewModelScope.launch {
         val result = taskRepository.update(task)
         when {
-            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList)
+            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList(R.string.task_saved))
             result.isFailure -> handleUpdateError(result.exceptionOrNull())
         }
     }
@@ -77,11 +77,11 @@ internal class TaskDetailsViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    private fun insertNewTaskAndStartObserve() = viewModelScope.launch {
+    private fun insertNewTask() = viewModelScope.launch {
         val task = getTaskFromUiState()
         val result = taskRepository.insert(task)
         when {
-            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList)
+            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList(R.string.task_saved))
             result.isFailure -> handleInsertError(result.exceptionOrNull())
         }
     }

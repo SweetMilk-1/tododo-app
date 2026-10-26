@@ -1,5 +1,6 @@
 package ru.tododo.feature.tasks.list
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,6 +64,12 @@ internal class TaskListViewModel @Inject constructor(
     fun addNewTask() {
         viewModelScope.launch {
             _events.emit(TaskListEvent.OpenNewTaskForm)
+        }
+    }
+
+    fun showSnackbar(@StringRes msgId: Int) {
+        viewModelScope.launch {
+            _events.emit(TaskListEvent.ShowSnackBar(msgId))
         }
     }
 

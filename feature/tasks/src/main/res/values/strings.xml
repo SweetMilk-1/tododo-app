@@ -28,6 +28,7 @@
     <string name="error_title_too_short">Слишком коротное название</string>
 
     <string name="task_saved">Задача сохранена</string>
+    <string name="task_deleted">Задача удалена</string>
     <string name="delete_task">Удалить задачу</string>
     <string name="delete_task_question">Вы действительно хотите удалить задачу?</string>
 </resources>

@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -56,6 +57,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
                         viewModel.openDeleteDialog()
                         true
                     }
+
                     else -> false
                 }
             }
@@ -99,7 +101,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     private fun handleEvent(event: TaskDetailsEvents) {
         when (event) {
-            TaskDetailsEvents.BackToList -> navigateBack()
+            is TaskDetailsEvents.BackToList -> navigateBack(event.msgId)
             TaskDetailsEvents.OpenDeleteDialog -> openDeleteDialog()
         }
     }
@@ -110,7 +112,11 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
         }.show(childFragmentManager, DELETE_ALERT_DIALOG_TAG)
     }
 
-    fun navigateBack() {
+    fun navigateBack(@StringRes message: Int?) {
+        findNavController().previousBackStackEntry?.savedStateHandle?.set(
+            SHOW_SNACKBAR_MSG_KEY,
+            message
+        )
         findNavController().navigateUp()
     }
 
@@ -247,5 +253,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
         @SuppressLint("ConstantLocale")
         private val DATE_TIME_FORMATTER = SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault())
+
+        const val SHOW_SNACKBAR_MSG_KEY = "SHOW_SNACKBAR_MSG_KEY"
     }
 }

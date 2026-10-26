@@ -13,11 +13,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import ru.tododo.core.utils.errorLog
+import ru.tododo.core.utils.showSnackbar
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskListBinding
+import ru.tododo.feature.tasks.details.TaskDetailsFragment.Companion.SHOW_SNACKBAR_MSG_KEY
 import ru.tododo.feature.tasks.list.recycler.TaskItemInteractListener
 import ru.tododo.feature.tasks.list.recycler.TaskListAdapter
 import ru.tododo.feature.tasks.list.recycler.TaskListItemViewHolder
@@ -78,6 +84,25 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         setupViewListeners()
         observeState()
         listenEvent()
+        listenSnackbar()
+    }
+
+    private fun listenSnackbar() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                findNavController().currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.getStateFlow<Int?>(SHOW_SNACKBAR_MSG_KEY, null)
+                    ?.shareIn(
+                        scope = viewLifecycleOwner.lifecycleScope,
+                        started = SharingStarted.Eagerly,
+                        replay = 0
+                    )
+                    ?.collect { msgId ->
+                        msgId?.let { viewModel.showSnackbar(it) }
+                    }
+            }
+        }
     }
 
     private fun navigateToTaskDetails(taskId: UUID?) {
@@ -120,6 +145,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             is TaskListEvent.OpenTaskDetails -> navigateToTaskDetails(event.taskId)
             is TaskListEvent.OpenNewTaskForm -> navigateToTaskDetails(null)
             is TaskListEvent.Error -> errorLog(event.msg)
+            is TaskListEvent.ShowSnackBar -> requireView().showSnackbar(event.msgId)
         }
     }
 
