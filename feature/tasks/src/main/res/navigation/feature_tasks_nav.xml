@@ -18,7 +18,6 @@
     <fragment
         android:id="@+id/taskDetailsFragment"
         android:name="ru.tododo.feature.tasks.details.TaskDetailsFragment"
-        android:label="TaskDetailsFragment"
         tools:layout="@layout/fragment_task_details">
 
         <argument

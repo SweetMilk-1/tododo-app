@@ -29,6 +29,7 @@ android {
 
 dependencies {
 
+    implementation(project(":core:resources"))
     implementation(project(":feature:tasks"))
     implementation(project(":data:repository:api"))
     implementation(project(":data:repository:room"))
