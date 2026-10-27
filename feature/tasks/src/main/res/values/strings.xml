@@ -31,4 +31,6 @@
     <string name="task_deleted">Задача удалена</string>
     <string name="delete_task">Удалить задачу</string>
     <string name="delete_task_question">Вы действительно хотите удалить задачу?</string>
+    <string name="empty_list_message">Тут пока пусто</string>
+    <string name="addNewTaskButton">Добавить задачу</string>
 </resources>

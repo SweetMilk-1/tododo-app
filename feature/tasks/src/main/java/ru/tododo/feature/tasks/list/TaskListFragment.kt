@@ -1,6 +1,8 @@
 package ru.tododo.feature.tasks.list
 
+import android.animation.Animator
 import android.os.Bundle
+import android.transition.Fade
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -125,6 +127,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
                     adapter.submitList(state.taskList)
+                    binding.emptyListMessageContainer.visibility = if (state.taskList.isEmpty())
+                        View.VISIBLE
+                    else
+                        View.GONE
                 }
             }
         }
@@ -150,6 +156,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     }
 
     private fun setupViewListeners() {
+        binding.addNewTaskFloatingButton.setOnClickListener {
+            viewModel.addNewTask()
+        }
+
         binding.addNewTaskButton.setOnClickListener {
             viewModel.addNewTask()
         }
