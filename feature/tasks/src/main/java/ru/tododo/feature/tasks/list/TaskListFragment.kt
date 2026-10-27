@@ -13,9 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -125,6 +123,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
                     adapter.submitList(state.taskList)
+                    binding.emptyListMessageContainer.visibility = if (state.taskList.isEmpty())
+                        View.VISIBLE
+                    else
+                        View.GONE
                 }
             }
         }
@@ -150,6 +152,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     }
 
     private fun setupViewListeners() {
+        binding.addNewTaskFloatingButton.setOnClickListener {
+            viewModel.addNewTask()
+        }
+
         binding.addNewTaskButton.setOnClickListener {
             viewModel.addNewTask()
         }
