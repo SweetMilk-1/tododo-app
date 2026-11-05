@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing scale -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="screen_padding">8dp</dimen>
+
+    <!-- Components -->
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fab_margin">@dimen/spacing_lg</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="row_min_height">56dp</dimen>
+    <dimen name="task_card_min_height">72dp</dimen>
+    <dimen name="row_padding_vertical">@dimen/spacing_sm</dimen>
+    <dimen name="list_item_padding">12dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">1dp</dimen>
+    <dimen name="card_stroke_width">1dp</dimen>
+    <dimen name="priority_dot_size">10dp</dimen>
+    <dimen name="list_item_spacing">12dp</dimen>
+    <dimen name="scroll_content_bottom_padding">88dp</dimen>
+
+    <!-- Typography -->
+    <dimen name="text_size_task_title">16sp</dimen>
+</resources>

@@ -1,7 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.ToDoDo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Base.Theme.ToDoDo" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/brand_on_primary</item>
+        <item name="colorPrimaryContainer">@color/brand_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/brand_on_primary_container</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="colorSecondaryContainer">@color/brand_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/brand_on_secondary_container</item>
+        <item name="colorSurface">@color/brand_surface</item>
+        <item name="colorOnSurface">@color/brand_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/brand_on_surface_variant</item>
+        <item name="colorError">@color/brand_error</item>
+        <item name="android:colorBackground">@color/brand_surface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="floatingActionButtonStyle">@style/Tododo.Widget.FloatingActionButton</item>
     </style>
 </resources>

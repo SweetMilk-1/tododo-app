@@ -1,41 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp">
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="@dimen/card_elevation"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="@dimen/card_stroke_width">
 
-    <CheckBox
-        android:id="@+id/completedCheckbox"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:minHeight="@dimen/task_card_min_height"
+        android:padding="@dimen/list_item_padding">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBaseline_toBaselineOf="@id/completedCheckbox"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/completedCheckbox"
-        android:orientation="vertical">
+        <!-- Индикатор приоритета (вертикально по центру, ведущий) -->
+        <View
+            android:id="@+id/priorityDot"
+            android:layout_width="@dimen/priority_dot_size"
+            android:layout_height="@dimen/priority_dot_size"
+            android:layout_marginStart="@dimen/spacing_xs"
+            android:background="@drawable/priority_dot"
+            android:importantForAccessibility="no"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Чекбокс (вертикально по центру, после индикатора) -->
+        <CheckBox
+            android:id="@+id/completedCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/task_checkbox_cd"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/priorityDot"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Заголовок — верх вертикальной цепи -->
         <TextView
             android:id="@+id/taskTitle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:ellipsize="end"
             android:maxLines="1"
-            android:textSize="16sp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            app:layout_constraintBottom_toTopOf="@id/dueDate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/completedCheckbox"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="Сделать ToDoDo" />
 
+        <!-- Срок — низ вертикальной цепи -->
         <TextView
             android:id="@+id/dueDate"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:ellipsize="end"
             android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/completedCheckbox"
+            app:layout_constraintTop_toBottomOf="@id/taskTitle"
             tools:text="До 12.12.2026, 20:00" />
-    </LinearLayout>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

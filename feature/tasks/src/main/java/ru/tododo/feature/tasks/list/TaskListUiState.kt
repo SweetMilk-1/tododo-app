@@ -1,5 +1,6 @@
 package ru.tododo.feature.tasks.list
 
+import ru.tododo.data.dto.Priority
 import java.util.UUID
 
 data class TaskListUiState(
@@ -15,5 +16,6 @@ data class TaskItem(
     val id: UUID,
     val title: String,
     val dueDate: Long?,
+    val priority: Priority,
     val isCompleted: Boolean
 )

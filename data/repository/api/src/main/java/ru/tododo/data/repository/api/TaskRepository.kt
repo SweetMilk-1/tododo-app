@@ -15,4 +15,6 @@ interface TaskRepository {
     suspend fun update(updatedTask: Task): Result<Unit>
 
     suspend fun delete(id: UUID): Result<Unit>
+
+    suspend fun restore(task: Task): Result<Unit>
 }

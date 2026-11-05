@@ -57,7 +57,17 @@ internal class TaskListViewModel @Inject constructor(
 
     fun deleteTask(taskId: UUID) {
         viewModelScope.launch {
+            val deleted = tasks.firstOrNull { it.id == taskId }
             taskRepository.delete(taskId)
+            if (deleted != null) {
+                _events.emit(TaskListEvent.ShowUndoDelete(deleted))
+            }
+        }
+    }
+
+    fun restoreTask(task: Task) {
+        viewModelScope.launch {
+            taskRepository.restore(task)
         }
     }
 
@@ -77,6 +87,7 @@ internal class TaskListViewModel @Inject constructor(
         id = this.id!!, // expected
         title = title,
         dueDate = dueDate,
+        priority = priority,
         isCompleted = isCompleted
     )
 }

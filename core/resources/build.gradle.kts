@@ -11,3 +11,7 @@ android {
         version = release(37)
     }
 }
+
+dependencies {
+    implementation(libs.material)
+}

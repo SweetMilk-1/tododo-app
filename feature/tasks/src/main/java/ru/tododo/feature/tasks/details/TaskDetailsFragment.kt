@@ -1,6 +1,7 @@
 package ru.tododo.feature.tasks.details
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -45,7 +47,7 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
 
     private val args: TaskDetailsFragmentArgs by navArgs()
 
-    val menuProvider: MenuProvider by lazy {
+    private val menuProvider: MenuProvider by lazy {
         object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.details_action_bar_menu, menu)
@@ -145,10 +147,10 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
                     (activity as AppCompatActivity).supportActionBar?.title =
                         requireContext().getString(state.fragmentTitleRes)
 
+                    requireActivity().removeMenuProvider(menuProvider)
+
                     if (state.isEditing) {
                         requireActivity().addMenuProvider(menuProvider)
-                    } else {
-                        requireActivity().removeMenuProvider(menuProvider)
                     }
 
                     binding.titleEditText.setTextKeepCursor(state.title)
@@ -161,6 +163,10 @@ class TaskDetailsFragment : Fragment(R.layout.fragment_task_details) {
                         ?: getString(R.string.no_due_date)
 
                     binding.priorityValueText.text = state.priority.getString(requireContext())
+
+                    // Цветовая индикация приоритета
+                    val priorityColor = ContextCompat.getColor(requireContext(), state.priority.colorRes())
+                    binding.priorityValueText.setTextColor(priorityColor)
 
                     // Switch «Выполнено» — только при редактировании
                     binding.completedSwitch.isVisible = state.isEditing

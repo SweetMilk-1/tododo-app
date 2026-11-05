@@ -33,4 +33,10 @@
     <string name="delete_task_question">Вы действительно хотите удалить задачу?</string>
     <string name="empty_list_message">Тут пока пусто</string>
     <string name="addNewTaskButton">Добавить задачу</string>
+
+    <string name="add_new_task_fab_cd">Добавить задачу</string>
+    <string name="save_button_cd">Сохранить</string>
+    <string name="task_checkbox_cd">Отметить задачу выполненной</string>
+    <string name="task_deleted_snackbar">Задача удалена</string>
+    <string name="undo">Отмена</string>
 </resources>
