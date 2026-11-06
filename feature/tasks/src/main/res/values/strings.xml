@@ -39,4 +39,8 @@
     <string name="task_checkbox_cd">Отметить задачу выполненной</string>
     <string name="task_deleted_snackbar">Задача удалена</string>
     <string name="undo">Отмена</string>
+    <string name="all_task_filter">Все</string>
+    <string name="active_task_filter">Активные</string>
+    <string name="today_task_filter">Сегодня</string>
+    <string name="expired_task_filter">Просроченные</string>
 </resources>

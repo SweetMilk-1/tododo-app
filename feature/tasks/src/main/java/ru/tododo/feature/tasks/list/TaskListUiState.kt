@@ -4,7 +4,8 @@ import ru.tododo.data.dto.Priority
 import java.util.UUID
 
 data class TaskListUiState(
-    val taskList: List<TaskItem> = emptyList()
+    val taskList: List<TaskItem> = emptyList(),
+    val tab: TaskListFilterTab = TaskListFilterTab.ALL
 ) {
 
     companion object {
