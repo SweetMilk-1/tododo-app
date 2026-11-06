@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Tododo.Widget.FloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="android:layout_width">@dimen/fab_size</item>
+        <item name="android:layout_height">@dimen/fab_size</item>
+        <item name="android:layout_margin">@dimen/fab_margin</item>
+        <item name="borderWidth">0dp</item>
+    </style>
+
+    <!-- Tappable row in details screen -->
+    <style name="Widget.ToDoDo.Row" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/row_min_height</item>
+        <item name="android:paddingTop">@dimen/row_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/row_padding_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <!-- Leading icon of a details row -->
+    <style name="Widget.ToDoDo.RowIcon" parent="">
+        <item name="android:layout_width">@dimen/icon_size</item>
+        <item name="android:layout_height">@dimen/icon_size</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="android:scaleType">center</item>
+    </style>
+</resources>

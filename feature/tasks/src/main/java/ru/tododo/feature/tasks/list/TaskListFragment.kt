@@ -1,24 +1,34 @@
 package ru.tododo.feature.tasks.list
 
+import android.graphics.Canvas
+import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R as MaterialR
+import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import ru.tododo.core.resources.R as CoreR
 import ru.tododo.core.utils.errorLog
 import ru.tododo.core.utils.showSnackbar
+import ru.tododo.core.utils.showSnackbarWithAction
+import ru.tododo.data.dto.Task
 import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskListBinding
 import ru.tododo.feature.tasks.details.TaskDetailsFragment.Companion.SHOW_SNACKBAR_MSG_KEY
@@ -62,6 +72,19 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
                 direction: Int
             ) {
                 (viewHolder as TaskListItemViewHolder).swipe()
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                drawSwipeBackground(c, viewHolder.itemView, dX)
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
         })
     }
@@ -115,7 +138,35 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         binding.taskList.layoutManager = LinearLayoutManager(requireContext()).apply {
             orientation = LinearLayoutManager.VERTICAL
         }
+        binding.taskList.setHasFixedSize(true)
+        (binding.taskList.itemAnimator as? DefaultItemAnimator)?.supportsChangeAnimations = false
+        binding.taskList.addItemDecoration(
+            SpacingItemDecoration(resources.getDimensionPixelSize(CoreR.dimen.list_item_spacing))
+        )
         recyclerViewItemTouchHelper.attachToRecyclerView(binding.taskList)
+    }
+
+    private fun drawSwipeBackground(c: Canvas, view: View, dX: Float) {
+        val context = view.context
+        val background = ColorDrawable(
+            MaterialColors.getColor(context, MaterialR.attr.colorErrorContainer, 0)
+        )
+        background.setBounds(view.left, view.top, view.right, view.bottom)
+        background.draw(c)
+
+        val icon = ContextCompat.getDrawable(context, CoreR.drawable.ic_delete)?.mutate() ?: return
+        icon.setTint(MaterialColors.getColor(context, MaterialR.attr.colorOnErrorContainer, 0))
+        val iconSize = view.height / 3
+        val top = view.top + (view.height - iconSize) / 2
+        val margin = iconSize / 2
+        if (dX > 0) {
+            val left = view.left + margin
+            icon.setBounds(left, top, left + iconSize, top + iconSize)
+        } else {
+            val right = view.right - margin
+            icon.setBounds(right - iconSize, top, right, top + iconSize)
+        }
+        icon.draw(c)
     }
 
     private fun observeState() {
@@ -123,12 +174,25 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
                     adapter.submitList(state.taskList)
-                    binding.emptyListMessageContainer.visibility = if (state.taskList.isEmpty())
-                        View.VISIBLE
-                    else
-                        View.GONE
+                    toggleEmptyState(state.taskList.isEmpty())
                 }
             }
+        }
+    }
+
+    private fun toggleEmptyState(showEmpty: Boolean) {
+        val container = binding.emptyListMessageContainer
+        container.animate().cancel()
+        if (showEmpty) {
+            if (container.visibility == View.GONE) {
+                container.alpha = 0f
+                container.visibility = View.VISIBLE
+            }
+            container.animate().alpha(1f).setDuration(EMPTY_FADE_MS).start()
+        } else if (container.visibility == View.VISIBLE) {
+            container.animate().alpha(0f).setDuration(EMPTY_FADE_MS)
+                .withEndAction { container.visibility = View.GONE }
+                .start()
         }
     }
 
@@ -148,6 +212,16 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             is TaskListEvent.OpenNewTaskForm -> navigateToTaskDetails(null)
             is TaskListEvent.Error -> errorLog(event.msg)
             is TaskListEvent.ShowSnackBar -> requireView().showSnackbar(event.msgId)
+            is TaskListEvent.ShowUndoDelete -> showUndoDeleteSnackbar(event.task)
+        }
+    }
+
+    private fun showUndoDeleteSnackbar(task: Task) {
+        requireView().showSnackbarWithAction(
+            R.string.task_deleted_snackbar,
+            R.string.undo
+        ) {
+            viewModel.restoreTask(task)
         }
     }
 
@@ -161,8 +235,23 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         }
     }
 
+    private class SpacingItemDecoration(private val spacing: Int) : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            outRect.bottom = spacing
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val EMPTY_FADE_MS = 150L
     }
 }

@@ -1,10 +1,12 @@
 package ru.tododo.feature.tasks.list.recycler
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Paint
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import ru.tododo.feature.tasks.R
+import ru.tododo.feature.tasks.details.colorRes
 import ru.tododo.feature.tasks.list.TaskItem
 import ru.tododo.feature.tasks.databinding.ViewItemTaskBinding
 import java.text.SimpleDateFormat
@@ -41,17 +43,20 @@ internal class TaskListItemViewHolder(
         } ?: context.getString(R.string.no_due_date)
         viewBinding.dueDate.text = dueDateText
         viewBinding.completedCheckbox.isChecked = taskItem.isCompleted
-        if (taskItem.isCompleted) {
-            viewBinding.taskTitle.paintFlags =
-                viewBinding.taskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            viewBinding.dueDate.paintFlags =
-                viewBinding.dueDate.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-        } else {
-            viewBinding.taskTitle.paintFlags =
-                viewBinding.taskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            viewBinding.dueDate.paintFlags =
-                viewBinding.dueDate.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-        }
+
+        // Цветовая индикация приоритета
+        val priorityColor = ContextCompat.getColor(context, taskItem.priority.colorRes())
+        viewBinding.priorityDot.backgroundTintList = ColorStateList.valueOf(priorityColor)
+
+        // Завершённая задача: приглушение + зачёркивание
+        val strikeFlag = if (taskItem.isCompleted) Paint.STRIKE_THRU_TEXT_FLAG else 0
+        val alpha = if (taskItem.isCompleted) COMPLETED_ALPHA else 1f
+        viewBinding.taskTitle.paintFlags =
+            (viewBinding.taskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()) or strikeFlag
+        viewBinding.dueDate.paintFlags =
+            (viewBinding.dueDate.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()) or strikeFlag
+        viewBinding.taskTitle.alpha = alpha
+        viewBinding.dueDate.alpha = alpha
     }
 
     fun swipe() {
@@ -59,6 +64,8 @@ internal class TaskListItemViewHolder(
     }
 
     companion object {
+        private const val COMPLETED_ALPHA = 0.55f
+
         @SuppressLint("ConstantLocale")
         private val DATE_TIME_FORMATTER = SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault())
     }

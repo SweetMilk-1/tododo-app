@@ -66,4 +66,13 @@ class TaskRepositoryImpl @Inject constructor(
             Result.failure(th)
         }
     }
+
+    override suspend fun restore(task: Task): Result<Unit> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            taskDao.upsert(task.toEntity())
+            Result.success(Unit)
+        } catch (th: Throwable) {
+            Result.failure(th)
+        }
+    }
 }
