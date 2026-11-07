@@ -1,154 +1,140 @@
-# План разработки Android-приложения Todo
+# ToDoDo
 
-## 1. Определение требований
+Android-приложение для управления задачами (to-do list). Создание, редактирование и удаление задач, приоритеты, сроки, отметка выполнения, фильтрация по вкладкам (Все / Активные / Сегодня / Просроченные), свайп для удаления с возможностью отмены.
 
-### Основной функционал (MVP)
-- Создание, редактирование, удаление задач
-- Отметка задачи как выполненной
-- Список задач с сортировкой (по дате, приоритету)
-- Сохранение данных локально
+Приложение построено на **View-based UI** (XML + ViewBinding, Material 3), архитектура **MVVM + Repository** с многомодульной структурой Gradle. Локальное хранение — Room3, асинхронность — Coroutines + Flow, внедрение зависимостей — Hilt.
 
-### Расширенный функционал
-- Категории/теги задач
-- Дедлайны и напоминания
-- Приоритеты
-- Поиск и фильтрация
-- Подзадачи
-- Синхронизация с облаком
+> Ранее этот файл содержал план разработки. Текущая версия описывает фактическое состояние кодовой базы.
 
-## 2. Технологический стек
+## Технологический стек
 
-- **Язык**: Kotlin
-- **UI**: Jetpack Compose (современный подход) или XML + View Binding
-- **Архитектура**: MVVM + Clean Architecture (опционально)
-- **БД**: Room
-- **Асинхронность**: Coroutines + Flow
-- **DI**: Hilt / Koin
-- **Навигация**: Navigation Component
-- **Уведомления**: WorkManager + AlarmManager
+| Категория | Технология |
+|---|---|
+| Язык | Kotlin |
+| UI | Views + ViewBinding, Material 3, ConstraintLayout, RecyclerView, ViewPager2 + TabLayout |
+| Навигация | Jetpack Navigation Component (Safe Args) |
+| Архитектура | MVVM (ViewModel + StateFlow / SharedFlow) + Repository |
+| БД | Room3 (`androidx.room3`) |
+| Асинхронность | Coroutines + Flow |
+| DI | Hilt (обработка через KSP) |
+| Сборка | Gradle (Kotlin DSL), Version Catalog (`gradle/libs.versions.toml`) |
 
-## 3. Архитектура приложения
+- `minSdk` 24, `targetSdk`/`compileSdk` 37, Java 11
+- `applicationId`: `ru.tododo`, namespace приложения: `ru.tododo.app`
 
-```
-UI Layer (Compose/Views)
-    ↓
-ViewModel (StateFlow)
-    ↓
-Repository
-    ↓
-DataSource (Room DAO / Remote API)
-```
+## Возможности
 
-### Слои:
-- **data** — Room entities, DAO, Repository impl, мапперы
-- **domain** — модели, use cases, интерфейсы репозиториев
-- **presentation** — ViewModel, UI-состояния, экраны, компоненты
+- **CRUD задач**: создание, редактирование, удаление.
+- **Поля задачи**: название (с валидацией — обязательно и не короче 5 символов), описание, срок (`dueDate`), приоритет (`LOW`/`MEDIUM`/`HIGH`), признак выполнения, временные метки `createdAt`/`updatedAt`.
+- **Список задач** с сортировкой по выполненности и приоритету (`ORDER BY isCompleted, priority DESC`).
+- **Фильтрация по вкладкам** через `ViewPager2` + `TabLayoutMediator`: Активные, Сегодня, Просроченные, Все. Логика фильтрации — на уровне `TaskRepository`.
+- **Свайп для удаления** с Snackbar и кнопкой «Отмена» (undo-восстановление).
+- **Уведомления** через Snackbar после сохранения / удаления.
+- **Edge-to-edge** с применением системных insets.
+- **Светлая / тёмная тема** (Material 3 DayNight).
+- **Bottom navigation**: «Задачи» и «Настройки» (раздел настроек пока не реализован — присутствует только пункт меню).
 
-## 4. Структура проекта
+## Архитектура
 
 ```
-app/
+UI (Fragment + ViewBinding)
+        ↓  (state / events)
+ViewModel (StateFlow / SharedFlow)
+        ↓
+TaskRepository (interface, data:repository:api)
+        ↓
+TaskRepositoryImpl + Room (TaskDao / TaskEntity)
+```
+
+- **State** — `StateFlow<UiState>` для состояния экрана.
+- **Events** — `SharedFlow<Event>` для одноразовых событий (навигация, показ Snackbar, открытие диалога).
+- Fragment подписывается на state/events через `repeatOnLifecycle(STARTED)`.
+
+## Структура модулей
+
+```
+ToDoDo/
+├── app/                          # Точка входа: Application, MainActivity, навигация, тема
+├── core/
+│   ├── resources/                # Общие ресурсы и drawable
+│   └── utils/                    # Расширения (snackbar, лог, EditText)
 ├── data/
-│   ├── local/ (Room: Entity, Dao, Database)
+│   ├── dto/                      # Доменные модели: Task, Priority
 │   ├── repository/
-│   └── mapper/
-├── domain/
-│   ├── model/
-│   ├── repository/
-│   └── usecase/
-├── presentation/
-│   ├── list/
-│   ├── edit/
-│   ├── detail/
-│   └── common/
-├── di/
-└── notification/
+│   │   ├── api/                  # Интерфейс TaskRepository, FilterType, ErrorCode, исключения
+│   │   └── room/                 # Реализация на Room3: Entity, Dao, Database, mapper, DI
+└── feature/
+    └── tasks/                    # Фича задач: список и детали
+        ├── list/                 # TaskListFragment/ViewModel, ViewPager, recycler, фильтр-вкладки
+        └── details/              # TaskDetailsFragment/ViewModel, форма, диалоги приоритета/удаления
 ```
 
-## 5. Модель данных
+Зависимости модулей направлены внутрь: `feature:tasks` → `data:repository:api` + `data:dto` + `core`; `app` собирает всё вместе. Реализация Room подключается через Hilt-биндинг `RepositoryModule` (`@Binds TaskRepositoryImpl -> TaskRepository`), поэтому `feature` зависит только от контракта `api`.
+
+## Модель данных
+
+Доменная модель (`data/dto`):
 
 ```kotlin
-@Entity
 data class Task(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: UUID? = null,
     val title: String,
     val description: String?,
+    val dueDate: Long?,
+    val priority: Priority,          // LOW, MEDIUM, HIGH
     val isCompleted: Boolean = false,
-    val priority: Int = 0,
-    val dueDate: Long? = null,
-    val categoryId: Long? = null,
-    val createdAt: Long,
-    val updatedAt: Long
+    val createdAt: Long? = null,
+    val updatedAt: Long? = null,
 )
 ```
 
-## 6. Экраны (UI)
+Сущность БД (`TaskEntity`, таблица `task`) хранит те же поля; `priority` сохраняется как `Int`. Маппинг — в `TaskMapper`. БД: `TododoDatabase`, версия 1, `exportSchema = true`.
 
-1. **Список задач** — основной экран, FAB для добавления, свайп для удаления, чекбокс
-2. **Создание/редактирование задачи** — форма с полями
-3. **Детали задачи** — просмотр + действия
-4. **Категории** (опционально)
-5. **Настройки** — тема, сортировка по умолчанию, экспорт
+## Фильтрация
 
-## 7. Этапы разработки
+`TaskRepository.FilterType` (`ALL`, `ACTIVE`, `TODAY`, `EXPIRED`) преобразуется в запросы DAO:
 
-### Этап 1: Setup (1-2 дня)
-- Создание проекта, настройка Gradle
-- Подключение зависимостей (Compose, Room, Hilt, Navigation)
-- Настройка темы (Material 3)
+- `ALL` — все задачи;
+- `ACTIVE` — невыполненные;
+- `TODAY` — `dueDate` попадает в today (диапазон начало/конец дня в системном часовом поясе, с учётом API < O через `Calendar`);
+- `EXPIRED` — `dueDate` раньше начала сегодняшнего дня.
 
-### Этап 2: Data Layer (2-3 дня)
-- Entity, DAO, Database
-- Repository + интерфейсы
-- Unit-тесты для репозитория
+## Навигация
 
-### Этап 3: UI списка (3-4 дня)
-- ViewModel со StateFlow
-- Экран списка, адаптер/Compose-компоненты
-- Empty state, загрузка
+`app/src/main/res/navigation/nav_graph.xml` включает граф фичи `feature_tasks_nav.xml`:
 
-### Этап 4: CRUD операции (3-4 дня)
-- Экран создания/редактирования
-- Валидация полей
-- Навигация между экранами
+- `taskListFragment` (стартовый) → `action_taskListFragment_to_taskDetailsFragment`
+- `taskDetailsFragment` принимает nullable `argument` `taskId` (`String`). `null` — режим создания, иначе — редактирование.
 
-### Этап 5: Доп. функции (по приоритету)
-- Приоритеты, дедлайны
-- Категории
-- Поиск и фильтр
-- Уведомления/напоминания
+## Сборка и запуск
 
-### Этап 6: Полировка
-- Анимации, transitions
-- Тёмная тема
-- Локализация
-- Accessibility
+Требуется Android Studio с поддержкой AGP 9.x и JDK 11+.
 
-### Этап 7: Тестирование и релиз
-- Unit + UI тесты
-- Ручное тестирование
-- Подготовка к Google Play (иконка, скриншоты, описание)
+```bash
+# Установить debug-сборку на подключённое устройство/эмулятор
+./gradlew :app:installDebug
 
-## 8. Тестирование
+# Собрать APK
+./gradlew :app:assembleDebug
 
-- **Unit**: ViewModel, UseCase, Repository (JUnit + MockK)
-- **UI**: Compose Test / Espresso
-- **Интеграционные**: Room in-memory
+# Запустить unit-тесты
+./gradlew test
+```
 
-## 9. Возможные улучшения (v2+)
+> В `local.properties` должен быть указан путь к Android SDK (`sdk.dir`).
 
-- Синхронизация (Firebase / собственный backend)
-- Виджеты на домашний экран
-- Голосовой ввод
-- Совместные списки
-- Интеграция с календарём
-- Wear OS версия
+## Структура репозитория и git-флоу
 
-## 10. Оценка сроков
+Разработка ведётся ветками `feature/*`, `fix/*`, `style/*` слиянием через Pull Request в `main`. История коммитов соответствует соглашению Conventional Commits (`feat:`, `fix:`, `style:`, `refactor:`).
 
-- **MVP**: ~2-3 недели (соло, part-time)
-- **Полная версия с доп. функциями**: ~1.5-2 месяца
+## Дорожная карта
 
----
+Из реализованного плана остаются открытыми (на момент текущей версии `0.0`):
 
-Хочешь, могу подробнее расписать любой из блоков — например, пример кода для Room + ViewModel или структуру Compose-экранов?
+- Раздел «Настройки» (тема, сортировка по умолчанию, экспорт).
+- Поиск по задачам.
+- Категории / теги, подзадачи.
+- Уведомления-напоминания о сроках (WorkManager / AlarmManager).
+- Синхронизация с облаком.
+- Тесты (unit для ViewModel / Repository, UI-тесты, интеграционные с in-memory Room).
+- Полировка UI: единая палитра и типографика, MaterialYou / динамические цвета, индикация приоритета цветом, стилизация завершённых задач и фона свайпа.
