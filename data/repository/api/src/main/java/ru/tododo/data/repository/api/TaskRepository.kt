@@ -6,7 +6,7 @@ import java.util.UUID
 
 interface TaskRepository {
 
-    fun observeAll(): Flow<Collection<Task>>
+    fun observeAll(filterType: FilterType): Flow<Collection<Task>>
 
     fun observeById(id: UUID): Flow<Task?>
 
@@ -17,4 +17,12 @@ interface TaskRepository {
     suspend fun delete(id: UUID): Result<Unit>
 
     suspend fun restore(task: Task): Result<Unit>
+
+    enum class FilterType {
+        ALL,
+        ACTIVE,
+        TODAY,
+        EXPIRED
+    }
 }
+

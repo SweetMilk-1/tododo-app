@@ -11,8 +11,14 @@ import java.util.UUID
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM task")
+    @Query("SELECT * FROM task ORDER BY isCompleted, priority DESC")
     fun observeAll(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM task WHERE isCompleted = 0 ORDER BY priority DESC")
+    fun observeActive(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM task WHERE dueDate BETWEEN :start AND :end ORDER BY isCompleted, priority DESC")
+    fun observeByDueDate(start: Long, end: Long): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM task")
     suspend fun getAll(): List<TaskEntity>

@@ -1,61 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/taskListContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="@dimen/screen_padding"
-        android:paddingEnd="@dimen/screen_padding"
-        android:paddingBottom="@dimen/screen_padding"
-        android:paddingStart="@dimen/screen_padding">
+        android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/taskList"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/filterTabLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="@dimen/scroll_content_bottom_padding"
-            tools:listitem="@layout/view_item_task" />
-
-        <LinearLayout
-            android:id="@+id/emptyListMessageContainer"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tabMode="scrollable" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/taskListViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_checklist"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
-                android:text="@string/empty_list_message"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
-            <Button
-                android:id="@+id/addNewTaskButton"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
-                android:text="@string/addNewTaskButton" />
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/filterTabLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

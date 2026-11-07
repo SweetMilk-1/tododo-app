@@ -4,10 +4,12 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.tododo.data.dto.Task
 import ru.tododo.data.repository.api.TaskRepository
@@ -19,22 +21,27 @@ import javax.inject.Inject
 internal class TaskListViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ): ViewModel() {
-    private var tasks = emptyList<Task>()
-        set(value) {
-            field = value
-            _state.value = _state.value.copy(taskList = value.map { it.mapToTaskItem() })
-        }
+    private var currentTasks = emptyList<Task>()
 
-    private val _state = MutableStateFlow(TaskListUiState.DEFAULT)
+    private val _state = MutableStateFlow(
+        TaskListUiState.DEFAULT.copy(
+            tabPosition = 0,
+        )
+    )
     val state: StateFlow<TaskListUiState> get() = _state
 
     private val _events = MutableSharedFlow<TaskListEvent>()
     val events: SharedFlow<TaskListEvent> get() = _events
 
-    init {
+    val pages: List<PageInfo> = TaskListFilterTab.entries.map {
+        PageInfo(it, getTaskListFlowForTab(it))
+    }
+
+    fun selectTab(tab: TaskListFilterTab) {
+        _state.value = _state.value.copy(tabPosition = tab.ordinal)
         viewModelScope.launch {
-            taskRepository.observeAll().collect {
-                tasks = it.toList()
+            taskRepository.observeAll(tab.mapToFilterType()).collect {
+                currentTasks = it.toList()
             }
         }
     }
@@ -47,17 +54,18 @@ internal class TaskListViewModel @Inject constructor(
 
     fun setTaskCompleted(taskId: UUID, isCompleted: Boolean) {
         viewModelScope.launch {
-            val task = tasks.firstOrNull{it.id == taskId}?.copy(isCompleted = isCompleted) ?: run {
-                _events.emit(TaskListEvent.Error("Wrong operation"))
-                return@launch
-            }
+            val task =
+                currentTasks.firstOrNull { it.id == taskId }?.copy(isCompleted = isCompleted) ?: run {
+                    _events.emit(TaskListEvent.Error("Wrong operation"))
+                    return@launch
+                }
             taskRepository.update(task)
         }
     }
 
     fun deleteTask(taskId: UUID) {
         viewModelScope.launch {
-            val deleted = tasks.firstOrNull { it.id == taskId }
+            val deleted = currentTasks.firstOrNull { it.id == taskId }
             taskRepository.delete(taskId)
             if (deleted != null) {
                 _events.emit(TaskListEvent.ShowUndoDelete(deleted))
@@ -83,11 +91,29 @@ internal class TaskListViewModel @Inject constructor(
         }
     }
 
-    private fun Task.mapToTaskItem (): TaskItem = TaskItem(
+    private fun getTaskListFlowForTab(tab: TaskListFilterTab): Flow<List<TaskItem>> {
+        return taskRepository.observeAll(tab.mapToFilterType())
+            .map { it.map { task -> task.mapToTaskItem() } }
+    }
+
+    private fun Task.mapToTaskItem(): TaskItem = TaskItem(
         id = this.id!!, // expected
         title = title,
         dueDate = dueDate,
         priority = priority,
         isCompleted = isCompleted
     )
+
+    private fun TaskListFilterTab.mapToFilterType() =
+        tabToFilterTypeMap[this] ?: throw IllegalArgumentException("Unknown filter tab $this")
+
+    private companion object {
+
+        private val tabToFilterTypeMap = mapOf(
+            TaskListFilterTab.ALL to TaskRepository.FilterType.ALL,
+            TaskListFilterTab.ACTIVE to TaskRepository.FilterType.ACTIVE,
+            TaskListFilterTab.TODAY to TaskRepository.FilterType.TODAY,
+            TaskListFilterTab.EXPIRED to TaskRepository.FilterType.EXPIRED
+        )
+    }
 }
