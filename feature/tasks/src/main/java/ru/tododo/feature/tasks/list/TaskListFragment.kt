@@ -25,7 +25,6 @@ import ru.tododo.feature.tasks.R
 import ru.tododo.feature.tasks.databinding.FragmentTaskListBinding
 import ru.tododo.feature.tasks.details.TaskDetailsFragment.Companion.SHOW_SNACKBAR_MSG_KEY
 import ru.tododo.feature.tasks.list.recycler.TaskItemInteractListener
-import ru.tododo.feature.tasks.list.viewpager.TaskListFlowProvider
 import ru.tododo.feature.tasks.list.viewpager.TaskListViewPagerAdapter
 import java.util.UUID
 
@@ -53,20 +52,6 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         }
     }
 
-    private val taskListFlowProvider: TaskListFlowProvider by lazy {
-        TaskListFlowProvider { viewModel.taskFlow() }
-    }
-
-    private val taskListviewPagerAdapter by lazy {
-        TaskListViewPagerAdapter(
-            layoutInflater = layoutInflater,
-            tabs = TaskListFilterTab.entries,
-            viewLifecycleOwner = viewLifecycleOwner,
-            taskItemInteractListener = taskItemInteractListener,
-            taskListFlowProvider = taskListFlowProvider
-        )
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,7 +64,6 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupTabBar()
         setupViewPagerWithTabBar()
         setupViewListeners()
         observeState()
@@ -88,29 +72,28 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     }
 
     private fun setupViewPagerWithTabBar() {
-        binding.taskListViewPager.adapter = taskListviewPagerAdapter
+        val adapter = TaskListViewPagerAdapter(
+            layoutInflater = layoutInflater,
+            pages = viewModel.pages,
+            taskItemInteractListener = taskItemInteractListener,
+            coroutineScope = viewLifecycleOwner.lifecycleScope
+        )
+        binding.taskListViewPager.adapter = adapter
+
         binding.taskListViewPager.registerOnPageChangeCallback(object :
             ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                // position — индекс текущей страницы
+                val tab = TaskListFilterTab.entries[position]
+                viewModel.selectTab(tab)
             }
         })
 
         TabLayoutMediator(binding.filterTabLayout, binding.taskListViewPager) { tab, position ->
             tab.text = ContextCompat.getString(
                 requireContext(),
-                taskListviewPagerAdapter.getTitle(position)
+                adapter.getTitle(position)
             )
         }.attach()
-    }
-
-    private fun setupTabBar() {
-        val tabLayout = binding.filterTabLayout
-        TaskListFilterTab.entries.forEach {
-            tabLayout.addTab(
-                tabLayout.newTab().setText(it.labelId)
-            )
-        }
     }
 
     private fun listenSnackbar() {
@@ -142,7 +125,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
-
+                    binding.filterTabLayout.also {
+                        val tab = it.getTabAt(state.tabPosition)
+                        it.selectTab(tab)
+                    }
                 }
             }
         }

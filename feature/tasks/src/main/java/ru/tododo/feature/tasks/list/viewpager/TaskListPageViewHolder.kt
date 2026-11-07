@@ -5,16 +5,11 @@ import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
-import kotlinx.coroutines.launch
 import ru.tododo.feature.tasks.databinding.ViewTaskListPageBinding
 import ru.tododo.feature.tasks.list.recycler.TaskItemInteractListener
 import ru.tododo.feature.tasks.list.recycler.TaskListAdapter
@@ -24,14 +19,13 @@ import ru.tododo.core.resources.R as CoreR
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import kotlinx.coroutines.flow.Flow
 import ru.tododo.feature.tasks.list.TaskItem
+import ru.tododo.feature.tasks.list.viewpager.TaskListViewPagerAdapter.Companion.POSIION_UNSET
 
 internal class TaskListPageViewHolder(
     private val binding: ViewTaskListPageBinding,
     private val layoutInflater: LayoutInflater,
-    private val taskItemInteractListener: TaskItemInteractListener,
-    private val viewLifecycleOwner: LifecycleOwner,
+    private val taskItemInteractListener: TaskItemInteractListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val adapter by lazy {
@@ -86,15 +80,9 @@ internal class TaskListPageViewHolder(
         setupRecyclerView()
     }
 
-    fun bind(listStateFlow: Flow<List<TaskItem>>) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                listStateFlow.collect { taskList ->
-                    adapter.submitList(taskList)
-                    toggleEmptyState(taskList.isEmpty())
-                }
-            }
-        }
+    fun bind(taskList: List<TaskItem>) {
+        adapter.submitList(taskList)
+        toggleEmptyState(taskList.isEmpty())
     }
 
     private fun toggleEmptyState(showEmpty: Boolean) {
