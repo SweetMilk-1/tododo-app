@@ -40,14 +40,6 @@
             android:text="@string/empty_list_message"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
-
-        <Button
-            android:id="@+id/addNewTaskButton"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:text="@string/addNewTaskButton" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
