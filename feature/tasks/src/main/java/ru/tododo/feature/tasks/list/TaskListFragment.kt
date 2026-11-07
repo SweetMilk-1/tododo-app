@@ -99,15 +99,17 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private fun listenSnackbar() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                findNavController().currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.getStateFlow<Int?>(SHOW_SNACKBAR_MSG_KEY, null)
-                    ?.shareIn(
+                val savedStateHandle = findNavController().currentBackStackEntry
+                    ?.savedStateHandle ?: return@repeatOnLifecycle
+
+                savedStateHandle.getStateFlow<Int?>(SHOW_SNACKBAR_MSG_KEY, null)
+                    .shareIn(
                         scope = viewLifecycleOwner.lifecycleScope,
                         started = SharingStarted.Eagerly,
                         replay = 0
                     )
-                    ?.collect { msgId ->
+                    .collect { msgId ->
+                        savedStateHandle[SHOW_SNACKBAR_MSG_KEY] = null
                         msgId?.let { viewModel.showSnackbar(it) }
                     }
             }
