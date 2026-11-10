@@ -19,6 +19,5 @@ dependencies {
     implementation(project(":data:settings:keys"))
     implementation(libs.hilt.android)
 
-    ksp(libs.androidx.room3.compiler)
     ksp(libs.hilt.compiler)
 }

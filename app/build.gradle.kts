@@ -32,6 +32,8 @@ dependencies {
     implementation(project(":core:resources"))
     implementation(project(":feature:tasks"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:notification:api"))
+    implementation(project(":feature:notification:impl"))
     implementation(project(":data:repository:api"))
     implementation(project(":data:repository:room"))
     implementation(project(":data:settings:api"))

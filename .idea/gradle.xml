@@ -23,6 +23,9 @@
             <option value="$PROJECT_DIR$/data/settings/impl" />
             <option value="$PROJECT_DIR$/data/settings/keys" />
             <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/notification" />
+            <option value="$PROJECT_DIR$/feature/notification/api" />
+            <option value="$PROJECT_DIR$/feature/notification/impl" />
             <option value="$PROJECT_DIR$/feature/settings" />
             <option value="$PROJECT_DIR$/feature/tasks" />
           </set>

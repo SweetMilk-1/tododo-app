@@ -24,13 +24,18 @@ dependencyResolutionManagement {
 
 rootProject.name = "ToDoDo"
 include(":app")
+
 include(":core:resources")
 include(":core:utils")
+
 include(":data:dto")
 include(":data:settings:api")
 include(":data:settings:impl")
 include(":data:settings:keys")
 include(":data:repository:api")
 include(":data:repository:room")
+
+include(":feature:notification:api")
+include(":feature:notification:impl")
 include(":feature:tasks")
 include(":feature:settings")
