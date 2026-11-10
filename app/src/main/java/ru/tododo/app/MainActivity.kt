@@ -1,10 +1,14 @@
 package ru.tododo.app
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -39,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         val rootView = findViewById<View>(R.id.main)
 
         applyTopAndBottomInsets(rootView)
+        requestNotificationPermission()
     }
 
     private fun applyTopAndBottomInsets(rootView: View) {
@@ -49,7 +54,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                NOTIFICATION_PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         return navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    companion object {
+
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1
     }
 }

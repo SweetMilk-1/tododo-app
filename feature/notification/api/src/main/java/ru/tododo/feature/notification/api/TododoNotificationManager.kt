@@ -1,10 +1,9 @@
 package ru.tododo.feature.notification.api
 
-import ru.tododo.data.dto.Task
+import java.util.UUID
 
 interface TododoNotificationManager {
 
-    fun scheduleTaskDueDateNotification(
-        task: Task
-    )
+    fun initNotificationChannels()
+    fun scheduleTaskExpiringNotification(taskId: UUID, dueDate: Long)
 }

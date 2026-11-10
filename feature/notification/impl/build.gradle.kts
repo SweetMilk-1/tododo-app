@@ -15,8 +15,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:resources"))
+
     implementation(project(":feature:notification:api"))
-    implementation(project(":data:dto"))
     implementation(project(":data:settings:api"))
 
     implementation(libs.androidx.work.runtime)

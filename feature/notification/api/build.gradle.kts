@@ -11,7 +11,3 @@ android {
         version = release(37)
     }
 }
-
-dependencies {
-    implementation(project(":data:dto"))
-}

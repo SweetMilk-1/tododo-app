@@ -16,7 +16,7 @@ class AppSettingsImpl @Inject constructor(
 
     override val notificationTimeMins: Int
         get() = PreferenceManager.getDefaultSharedPreferences(context)
-            .getInt(key(ru.tododo.data.settings.keys.R.string.notification_time_key), 5)
+            .getString(key(ru.tododo.data.settings.keys.R.string.notification_time_key), "5")!!.toInt()
 
 
     private fun key(@StringRes stringId: Int): String = context.getString(stringId)

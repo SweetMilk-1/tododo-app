@@ -35,4 +35,5 @@ dependencies {
     implementation(project(":core:resources"))
     implementation(project(":data:dto"))
     implementation(project(":data:repository:api"))
+    implementation(project(":feature:notification:api"))
 }

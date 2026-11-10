@@ -13,13 +13,15 @@ import kotlinx.coroutines.launch
 import ru.tododo.data.dto.Priority
 import ru.tododo.data.dto.Task
 import ru.tododo.data.repository.api.TaskRepository
+import ru.tododo.feature.notification.api.TododoNotificationManager
 import ru.tododo.feature.tasks.R
 import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 internal class TaskDetailsViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val tododoNotificationManager : TododoNotificationManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TaskDetailsUiState.DEFAULT)
@@ -68,7 +70,14 @@ internal class TaskDetailsViewModel @Inject constructor(
     private fun updateTask(task: Task) = viewModelScope.launch {
         val result = taskRepository.update(task)
         when {
-            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList(R.string.task_saved))
+            result.isSuccess -> {
+                val taskId = task.id
+                val dueDate = task.dueDate
+                if (taskId != null && dueDate != null) {
+                    tododoNotificationManager.scheduleTaskExpiringNotification(taskId,  dueDate)
+                } //FIXME
+                _events.emit(TaskDetailsEvents.BackToList(R.string.task_saved))
+            }
             result.isFailure -> handleUpdateError(result.exceptionOrNull())
         }
     }
@@ -81,7 +90,12 @@ internal class TaskDetailsViewModel @Inject constructor(
         val task = getTaskFromUiState()
         val result = taskRepository.insert(task)
         when {
-            result.isSuccess -> _events.emit(TaskDetailsEvents.BackToList(R.string.task_saved))
+            result.isSuccess -> {
+                task.dueDate?.let {
+                    tododoNotificationManager.scheduleTaskExpiringNotification(result.getOrThrow(), it)
+                }
+                _events.emit(TaskDetailsEvents.BackToList(R.string.task_saved))
+            } //FIXME
             result.isFailure -> handleInsertError(result.exceptionOrNull())
         }
     }

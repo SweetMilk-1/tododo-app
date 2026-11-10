@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="task_expiring_channel_name">Уведомление о задачах</string>
+    <string name="task_expiring_channel_description">Уведомления о скором истечении срока задачи</string>
+    <string name="task_expiring_title">Срок задачи истекает</string>
+    <string name="task_expiring_description">Поторопись!</string>
+</resources>
