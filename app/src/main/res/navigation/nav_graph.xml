@@ -5,4 +5,5 @@
     app:startDestination="@id/tasks_nav">
 
     <include app:graph="@navigation/feature_tasks_nav"/>
+    <include app:graph="@navigation/feature_settings_nav"/>
 </navigation>

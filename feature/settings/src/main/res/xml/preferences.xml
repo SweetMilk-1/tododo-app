@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/notification_category_title">
+
+        <SwitchPreferenceCompat
+            app:key="@string/enable_notification_key"
+            app:title="@string/enable_notification_title" />
+
+        <DropDownPreference
+            app:defaultValue="5"
+            app:entries="@array/notification_time_entries"
+            app:entryValues="@array/notification_time_values"
+            app:key="@string/notification_time_key"
+            app:title="@string/notification_time_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
