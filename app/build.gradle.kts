@@ -31,8 +31,11 @@ dependencies {
 
     implementation(project(":core:resources"))
     implementation(project(":feature:tasks"))
+    implementation(project(":feature:settings"))
     implementation(project(":data:repository:api"))
     implementation(project(":data:repository:room"))
+    implementation(project(":data:settings:api"))
+    implementation(project(":data:settings:impl"))
 
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
