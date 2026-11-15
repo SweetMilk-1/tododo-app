@@ -1,5 +1,7 @@
 package ru.tododo.app
 
+import android.app.ComponentCaller
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -14,9 +16,13 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
+import ru.tododo.core.notifications.api.NotificationService
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject lateinit var notificationService: NotificationService
 
     private lateinit var navHostFragment: NavHostFragment
 
@@ -39,6 +45,12 @@ class MainActivity : AppCompatActivity() {
         val rootView = findViewById<View>(R.id.main)
 
         applyTopAndBottomInsets(rootView)
+        notificationService.tryRequestPermission(this)
+    }
+
+    override fun onNewIntent(intent: Intent, caller: ComponentCaller) {
+        super.onNewIntent(intent, caller)
+        navHostFragment.navController.handleDeepLink(intent)
     }
 
     private fun applyTopAndBottomInsets(rootView: View) {

@@ -19,7 +19,7 @@
         android:id="@+id/taskDetailsFragment"
         android:name="ru.tododo.feature.tasks.details.TaskDetailsFragment"
         tools:layout="@layout/fragment_task_details">
-
+        <deepLink app:uri="tododo://feature/tasks/{taskId}" />
         <argument
             android:name="taskId"
             android:defaultValue="@null"
