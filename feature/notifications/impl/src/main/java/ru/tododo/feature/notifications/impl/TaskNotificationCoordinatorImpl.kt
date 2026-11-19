@@ -1,12 +1,16 @@
 package ru.tododo.feature.notifications.impl
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.tododo.core.notifications.api.TaskNotificationScheduler
 import ru.tododo.data.dto.Task
@@ -15,18 +19,18 @@ import ru.tododo.data.settings.api.AppSettings
 import ru.tododo.feature.notifications.api.TaskNotificationCoordinator
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.collections.forEach
 import kotlin.time.Duration.Companion.minutes
 
 class TaskNotificationCoordinatorImpl @Inject constructor(
-    @ApplicationContext appContext: Context,
+    @ApplicationContext private val appContext: Context,
     private val taskRepository: TaskRepository,
     private val appSettings: AppSettings,
     private val notificationScheduler: TaskNotificationScheduler
 ) : TaskNotificationCoordinator {
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private val scheduledTasksInfoStorage = ScheduledTasksInfoStorage(appContext)
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SHARED_PREFERENCES_NAME)
+    private val scope =
+        CoroutineScope(SupervisorJob() + CoroutineName("TaskNotificationCoordinatorImpl") + Dispatchers.Main)
 
     override fun start() {
         scope.launch {
@@ -35,7 +39,6 @@ class TaskNotificationCoordinatorImpl @Inject constructor(
                 .map {
                     it.filter(::isNotificationTimeValid)
                 }
-                .stateIn(scope)
                 .collect(::synchronizeNotifications)
         }
     }
@@ -44,49 +47,62 @@ class TaskNotificationCoordinatorImpl @Inject constructor(
         (task.dueDate?.let { dueDate -> dueDate - appSettings.notificationTimeMins.minutes.inWholeMilliseconds > System.currentTimeMillis() }
             ?: false)
 
-    private fun synchronizeNotifications(tasks: List<Task>) {
-        val handledTaskIds = mutableListOf<UUID>()
-        tasks.forEach {
-            val id = it.id ?: return@forEach
-            val title = it.title
-            val dueDate = it.dueDate ?: return@forEach
-            val notificationTime =
-                dueDate - appSettings.notificationTimeMins.minutes.inWholeMilliseconds
+    private suspend fun synchronizeNotifications(tasks: List<Task>) {
+        appContext.dataStore.updateData { preferences ->
+            val mutablePreferences = preferences.toMutablePreferences()
 
-            val scheduledTIme = scheduledTasksInfoStorage[id]
+            val handledTaskIds = mutableListOf<String>()
+            tasks.forEach {
+                val id = it.id ?: return@forEach
+                val title = it.title
+                val dueDate = it.dueDate ?: return@forEach
+                val notificationTime =
+                    dueDate - appSettings.notificationTimeMins.minutes.inWholeMilliseconds
 
-            if (notificationTime < System.currentTimeMillis())
-                return@forEach
+                val key = longPreferencesKey(id.toString())
 
-            when {
-                scheduledTIme == null -> {
-                    notificationScheduler.schedule(
-                        taskId = id,
-                        taskTitle = title,
-                        time = notificationTime
-                    )
-                    scheduledTasksInfoStorage[id] = notificationTime
+                val scheduledTIme = mutablePreferences[key]
+
+                if (notificationTime < System.currentTimeMillis())
+                    return@forEach
+
+                when {
+                    scheduledTIme == null -> {
+                        notificationScheduler.schedule(
+                            taskId = id,
+                            taskTitle = title,
+                            time = notificationTime
+                        )
+                        mutablePreferences[key] = notificationTime
+                    }
+
+                    scheduledTIme != notificationTime -> {
+                        notificationScheduler.schedule(
+                            taskId = id,
+                            taskTitle = title,
+                            time = notificationTime,
+                            isRescheduling = true
+                        )
+                        mutablePreferences[key] = notificationTime
+                    }
                 }
-
-                scheduledTIme != notificationTime -> {
-                    notificationScheduler.schedule(
-                        taskId = id,
-                        taskTitle = title,
-                        time = notificationTime,
-                        isRescheduling = true
-                    )
-                    scheduledTasksInfoStorage[id] = notificationTime
-                }
+                handledTaskIds.add(id.toString())
             }
-            handledTaskIds.add(id)
+
+            preferences.asMap().keys.map(Preferences.Key<*>::name)
+                .subtract(handledTaskIds.toSet())
+                .forEach {
+                    val key = longPreferencesKey(it)
+                    notificationScheduler.cancel(UUID.fromString(it))
+                    mutablePreferences.remove(key)
+                }
+
+            mutablePreferences
         }
+    }
 
-        scheduledTasksInfoStorage
-            .getAllKeys()
-            .subtract(handledTaskIds.toSet())
-            .forEach {
-                notificationScheduler.cancel(it)
-                scheduledTasksInfoStorage[it] = null
-            }
+    companion object {
+
+        private const val SHARED_PREFERENCES_NAME = "task_notification_storage"
     }
 }
