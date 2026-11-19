@@ -30,6 +30,10 @@ android {
 dependencies {
 
     implementation(project(":core:resources"))
+    implementation(project(":core:notifications:api"))
+    implementation(project(":core:notifications:impl"))
+    implementation(project(":feature:notifications:api"))
+    implementation(project(":feature:notifications:impl"))
     implementation(project(":feature:tasks"))
     implementation(project(":feature:settings"))
     implementation(project(":data:repository:api"))
