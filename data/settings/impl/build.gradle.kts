@@ -16,8 +16,9 @@ android {
 
 dependencies {
     implementation(project(":data:settings:api"))
-    implementation(project(":data:settings:keys"))
     implementation(libs.hilt.android)
+    implementation(libs.androidx.datastore)
+    implementation(libs.kotlinx.serialization.json)
 
     ksp(libs.androidx.room3.compiler)
     ksp(libs.hilt.compiler)

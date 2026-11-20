@@ -18,12 +18,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":data:settings:api"))
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.androidx.preference.ktx)
 
     //Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-
-    project(":data:settings:keys")
 }

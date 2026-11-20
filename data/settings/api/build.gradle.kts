@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.serializations.json)
 }
 
 android {
@@ -10,4 +11,11 @@ android {
     compileSdk {
         version = release(37)
     }
+}
+
+dependencies {
+    implementation(libs.androidx.datastore)
+    implementation(libs.kotlinx.coroutines.core)
+
+    implementation(libs.kotlinx.serialization.json)
 }
