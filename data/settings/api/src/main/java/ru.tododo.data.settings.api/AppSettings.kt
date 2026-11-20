@@ -1,8 +1,14 @@
 package ru.tododo.data.settings.api
 
-interface AppSettings {
+import kotlinx.serialization.Serializable
 
-    val isNotificationEnabled: Boolean
-
+@Serializable
+data class AppSettings(
+    val isNotificationEnabled: Boolean,
     val notificationTimeMins: Int
+) {
+
+    companion object {
+        val DEFAULT = AppSettings(isNotificationEnabled = false, notificationTimeMins = 5)
+    }
 }

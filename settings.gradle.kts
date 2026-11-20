@@ -32,7 +32,6 @@ include(":core:utils")
 include(":data:dto")
 include(":data:settings:api")
 include(":data:settings:impl")
-include(":data:settings:keys")
 include(":data:repository:api")
 include(":data:repository:room")
 

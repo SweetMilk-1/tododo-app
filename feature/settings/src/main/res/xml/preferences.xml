@@ -5,6 +5,7 @@
 
         <SwitchPreferenceCompat
             app:key="@string/enable_notification_key"
+            app:persistent="false"
             app:title="@string/enable_notification_title" />
 
         <DropDownPreference
@@ -12,6 +13,7 @@
             app:entries="@array/notification_time_entries"
             app:entryValues="@array/notification_time_values"
             app:key="@string/notification_time_key"
+            app:persistent="false"
             app:title="@string/notification_time_title"
             app:useSimpleSummaryProvider="true" />
 

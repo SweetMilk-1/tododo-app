@@ -26,8 +26,6 @@ class TaskNotificationSchedulerImpl @Inject constructor(
     override fun schedule(taskId: UUID, taskTitle: String, time: Long, isRescheduling: Boolean) {
         val intent = createIntent(context, taskId, taskTitle)
 
-        val time = System.currentTimeMillis() + 5000
-
         val pendingIntent = getPendingIntent(taskId, intent)
 
         if (isRescheduling) {
